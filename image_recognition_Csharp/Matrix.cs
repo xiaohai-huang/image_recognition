@@ -6,6 +6,7 @@ namespace image_recognition_Csharp
 {
     class Matrix
     {
+        // class fields
         double[,] data;
         public int Row
         {
@@ -28,12 +29,46 @@ namespace image_recognition_Csharp
 
             get
             {
-                return data[row,col];
+                return data[row, col];
                 throw new ArgumentException("Invalid index!");
             }
             set
             {
                 data[row, col] = value;
+            }
+
+        }
+        public double this[int row]
+        {
+
+
+            get
+            {
+                if (this.Column == 1)
+                {
+                return data[row, 0];
+                }
+                else
+                {
+                    Console.WriteLine("Invalid indexing");
+                    throw new ArgumentException();
+                    
+                }
+                
+            }
+            set
+            {
+                if (this.Column == 1)
+                {
+
+                data[row, 0] = value;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid indexing");
+                    throw new ArgumentException();
+                    
+                }
             }
 
         }
@@ -69,11 +104,12 @@ namespace image_recognition_Csharp
                 }
                 return output_matrix;
             }
-            else
+            else// if input is invalid
             {
                 Console.WriteLine("left column and right row is not the same");
                 Console.WriteLine($"{this.Column} != {right_matrix.Row}");
-                return right_matrix;// if input is invalid
+                throw new ArgumentException();
+                
             }
             
         }
@@ -90,7 +126,24 @@ namespace image_recognition_Csharp
 
             return sum;
         }
+        public static Matrix operator *(Matrix left, Matrix right)
+        {
+            return left.Dot(right);
+        }
 
+        // sum matrix
+        public double Sum()
+        {
+            double result=0;
+            for (int row = 0; row < this.Row; row++)
+            {
+                for(int col = 0; col < this.Column; col++)
+                {
+                    result = result + this[row, col];
+                }
+            }
+            return result;
+        }
         // addition
         public Matrix Add(Matrix right_matrix)
         {
