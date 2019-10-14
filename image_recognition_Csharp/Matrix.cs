@@ -7,7 +7,7 @@ namespace image_recognition_Csharp
     class Matrix
     {
         // class fields
-        double[,] data;
+        private double[,] data;
         public int Row
         {
             get { return data.GetLength(0); }
