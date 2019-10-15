@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+
 
 namespace image_recognition_Csharp
 {
@@ -84,7 +84,57 @@ namespace image_recognition_Csharp
             data=input;
         }
  
+        // if input array has only 1 D
+        // reshape it to two D array, e.g 784 => 28 * 28
+        public Matrix(double[] one_D_array)
+        {
+            if (one_D_array.Length == 2)
+            {
+                double[,] two_D_version_ = new double[2, 1];
+                two_D_version_[0, 0] = one_D_array[0];
+                two_D_version_[1, 0] = one_D_array[1];
+                data = two_D_version_;
 
+            }
+            else
+            {
+
+                // sqrt return a double
+                // in order to reshape an array, the array has to be ** 1/2
+                // not just /2 in length.
+                double[,] two_D_version = new double[(int)(Math.Sqrt(one_D_array.Length)), (int)(Math.Sqrt(one_D_array.Length))];
+                List<double> input_list = new List<double>();
+                for (int x = 0; x < one_D_array.Length; x++)
+                {
+                    input_list.Add(one_D_array[x]);
+                }
+
+                int index = 0;
+
+                for (int row = 0; row < two_D_version.GetLength(0); row++)
+                {
+                    for (int col = 0; col < two_D_version.GetLength(1); col++)
+                    {
+                        try
+                        {
+                            two_D_version[row, col] = input_list[index];
+
+                        }
+                        catch
+                        {
+                            Console.WriteLine("out of range" + index);
+
+                        }
+                        index++;
+                    }
+                }
+
+                data = two_D_version;
+            }
+        }
+
+        // jagged array
+        
         // dot product
         public Matrix Dot(Matrix right_matrix)
         {
@@ -178,6 +228,75 @@ namespace image_recognition_Csharp
             return result;
         }
 
+        // multiplication
+        public Matrix Multiply(double num)
+        {
+            Matrix Multiplied_matrix=new Matrix(this.Row,this.Column);
+
+            for(int row=0; row < this.Row; row++)
+            {
+                for(int col=0; col < this.Column; col++)
+                {
+                    Multiplied_matrix[row, col] = this[row, col] * num;
+                }
+            }
+            return Multiplied_matrix;
+        }
+        public static Matrix operator *(Matrix left, double right)
+        {
+            Matrix result;
+            result = left.Multiply(right);
+            return result;
+        }
+        public static Matrix operator *(double left, Matrix right)
+        {
+            Matrix result;
+            result = right.Multiply(left);
+            return result;
+        }
+
+        // set number
+        public Matrix Set_num(double num)
+        {
+            Matrix new_matrix = new Matrix(this.Row,this.Column);
+            for (int row = 0; row < new_matrix.Row; row++)
+            {
+                for(int col = 0; col < new_matrix.Column; col++)
+                {
+                    new_matrix[row, col] = num;
+                }
+            }
+            return new_matrix;
+        }
+
+        // get the maxinum number of the whole matrix
+        public double Get_Max()
+        {
+            Matrix one_D = this.Reshape(1);
+            double max_num=one_D[0];
+            for (int index = 0; index < one_D.Row; index++)
+            {
+                max_num = Math.Max(max_num, one_D[index]);
+            }
+
+            return max_num;
+
+        }
+        public int Get_Max_index()
+        {
+            Matrix one_D = this.Reshape(1);
+            double max_num = one_D[0];
+            int result = 0;
+            for (int index = 0; index < one_D.Row; index++)
+            {
+                max_num = Math.Max(max_num, one_D[index]);
+                result = index;
+            }
+
+            return result;
+
+        }
+
         // reshape the matrix
         // supply row and column   
         public Matrix Reshape(int row, int col)
@@ -243,6 +362,20 @@ namespace image_recognition_Csharp
                 }
                 Console.WriteLine();
             }
+        }
+
+        public string Return_String()
+        {
+            string text = "";
+            for (int row = 0; row < this.Row; row++)
+            {
+                for (int col = 0; col < this.Column; col++)
+                {
+                   text=text+(Math.Round(this[row, col], 6) + "\t");
+                }
+                text = text + "\n";
+            }
+            return text;
         }
     }
 }

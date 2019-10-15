@@ -60,19 +60,61 @@ namespace image_recognition_Csharp
         // L is a hyperparameter that controls the strength of the L2 regularization penalty
         // L L2 Regularization strength
         // regularization loss
-        public static double Get_Regularization_Loss(Matrix W,double L)
+        public static double Get_Regularization_Loss(Matrix W, double L)
         {
             double loss = 0;
-            for(int row = 0; row < W.Row; row++)
+            for (int row = 0; row < W.Row; row++)
+            {
+                for (int col = 0; col < W.Column; col++)
+                {
+                    loss = loss + (W[row, col] * W[row, col]);
+                }
+            }
+            return L * loss;
+        }
+
+        // numerical gradient
+        public static Matrix Get_Numerical_Gradient(Matrix input_data, Matrix Bias, Matrix W,int correct_label)
+        {
+            // declare the graident matrix to be returned
+            double[,] Gradient_array = new double[W.Row, W.Column];
+            Matrix Gradient;
+
+            // delta
+            double delta = 1;
+
+            // get the f(x) = orginal loss
+            Matrix Scores = Get_Scores(input_data, W, Bias);
+            double orginal_loss = Get_SVM_Loss(Scores,correct_label,delta);
+            Matrix Current_W = W;
+
+            //  dims
+            // get the f(x+h) = new loss
+            double h = 0.0001;
+            for (int row=0; row < W.Row; row++)
             {
                 for(int col = 0; col < W.Column; col++)
                 {
-                    loss = loss + (W[row, col]* W[row, col]);
+                    
+                    Matrix W_h = Current_W;
+                    W_h[row, col] = W_h[row, col] + h;
+                    Matrix New_Scores = Get_Scores(input_data, W_h, Bias);
+                    double new_loss = Get_SVM_Loss(New_Scores, correct_label, delta);
+
+                    // [f(x+h) - f(x)] / h
+                    double gradient = (new_loss - orginal_loss) / h;
+                    
+                    Gradient_array[row, col] = gradient;
                 }
             }
-            return L*loss;
-        }
+           
 
+
+            Gradient = new Matrix(Gradient_array);
+
+            return Gradient;
+            
+        }
 
 
     }
