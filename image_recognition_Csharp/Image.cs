@@ -1,11 +1,41 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
+using SixLabors.ImageSharp.PixelFormats;
+using System.IO;
 
 namespace image_recognition_Csharp
 {
-    static class Image
+    class Image
     {
+       
+        public static void SaveImage(string path, double[,] double_image)
+        {
+            byte[,] image=new byte[double_image.GetLength(0),double_image.GetLength(1)];
+            for (int x = 0; x < double_image.GetLength(0); x++)
+            {
+                for(int y = 0; y < double_image.GetLength(1); y++)
+                {
+                    image[x, y] = (byte)double_image[y, x];
+                }
+            }
+            
+            int width = image.GetLength(0);
+            int height = image.GetLength(1);
+            Image<Gray8> result = new Image<Gray8>(width, height);
+            for (int i = 0; i < width; i++)
+            {
+                for (int j = 0; j < height; j++)
+                {
+                    result[i, j] = new Gray8(image[i, j]);
+                }
+            }
+            result.SaveAsPng(new FileStream(path, FileMode.Create));
+        }
+
+
         // for minist dataset
         public static int[] Get_labels(string file_path)
         {
