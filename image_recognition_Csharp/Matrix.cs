@@ -371,7 +371,7 @@ namespace image_recognition_Csharp
             {
                 for (int col = 0; col < this.Column; col++)
                 {
-                   text=text+(Math.Round(this[row, col], 6) + "\t");
+                   text=text+(Math.Round(this[row, col], 6) + ",");
                 }
                 text = text + "\n";
             }

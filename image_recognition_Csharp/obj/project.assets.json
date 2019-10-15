@@ -13,11 +13,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\image_recognition\\image_recognition_Csharp\\image_recognition_Csharp.csproj",
+      "projectUniqueName": "D:\\New folder\\image_recognition\\image_recognition\\image_recognition_Csharp\\image_recognition_Csharp.csproj",
       "projectName": "image_recognition_Csharp",
-      "projectPath": "D:\\image_recognition\\image_recognition_Csharp\\image_recognition_Csharp.csproj",
+      "projectPath": "D:\\New folder\\image_recognition\\image_recognition\\image_recognition_Csharp\\image_recognition_Csharp.csproj",
       "packagesPath": "C:\\Users\\86791\\.nuget\\packages\\",
-      "outputPath": "D:\\image_recognition\\image_recognition_Csharp\\obj\\",
+      "outputPath": "D:\\New folder\\image_recognition\\image_recognition\\image_recognition_Csharp\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\86791\\AppData\\Roaming\\NuGet\\NuGet.Config",

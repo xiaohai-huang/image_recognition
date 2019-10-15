@@ -66,6 +66,10 @@ namespace image_recognition_Csharp
                     Console.WriteLine($"the loss for label {item.Value} is '{Math.Round(new_loss)}' and the score for that is {Math.Round(new_score[item.Value])}");
                     Console.WriteLine($"The score increase rate is {Math.Round((new_score[item.Value] - old_scores[item.Value]) / old_scores[item.Value], 3)}%");
                     Console.WriteLine($"The decrease rate of loss is {Math.Round(-(new_loss - old_loss) / old_loss),5}%\n\n");
+                    
+                    string text_to_write = W.Return_String();
+                    string W_result_path = @"W_result.txt";
+                    System.IO.File.WriteAllText($"{W_result_path}_{item.Value}", $"{text_to_write}\n\nThis is for label {item.Value}\nTried times: {time_tried}");
 
                     time_tried++;
 
@@ -73,10 +77,7 @@ namespace image_recognition_Csharp
                     {
                         Console.WriteLine("The final loss is " + new_loss);
                         W.Display();
-                        string text_to_write = W.Return_String();
-                        string W_result_path = @"W_result.txt";
-                        System.IO.File.WriteAllText($"{W_result_path}\n\nThis is for label {item.Value}", text_to_write);
-
+                        
                         Console.WriteLine("Finsihed!!!!!!!!!\n\n");
                        
                         break;

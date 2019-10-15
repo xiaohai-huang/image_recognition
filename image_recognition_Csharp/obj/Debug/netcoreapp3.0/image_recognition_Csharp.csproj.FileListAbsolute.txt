@@ -9,3 +9,14 @@ D:\image_recognition\image_recognition_Csharp\obj\Debug\netcoreapp3.0\image_reco
 D:\image_recognition\image_recognition_Csharp\obj\Debug\netcoreapp3.0\image_recognition_Csharp.AssemblyInfo.cs
 D:\image_recognition\image_recognition_Csharp\obj\Debug\netcoreapp3.0\image_recognition_Csharp.dll
 D:\image_recognition\image_recognition_Csharp\obj\Debug\netcoreapp3.0\image_recognition_Csharp.pdb
+D:\New folder\image_recognition\image_recognition\image_recognition_Csharp\bin\Debug\netcoreapp3.0\image_recognition_Csharp.exe
+D:\New folder\image_recognition\image_recognition\image_recognition_Csharp\bin\Debug\netcoreapp3.0\image_recognition_Csharp.deps.json
+D:\New folder\image_recognition\image_recognition\image_recognition_Csharp\bin\Debug\netcoreapp3.0\image_recognition_Csharp.runtimeconfig.json
+D:\New folder\image_recognition\image_recognition\image_recognition_Csharp\bin\Debug\netcoreapp3.0\image_recognition_Csharp.runtimeconfig.dev.json
+D:\New folder\image_recognition\image_recognition\image_recognition_Csharp\bin\Debug\netcoreapp3.0\image_recognition_Csharp.dll
+D:\New folder\image_recognition\image_recognition\image_recognition_Csharp\bin\Debug\netcoreapp3.0\image_recognition_Csharp.pdb
+D:\New folder\image_recognition\image_recognition\image_recognition_Csharp\obj\Debug\netcoreapp3.0\image_recognition_Csharp.csprojAssemblyReference.cache
+D:\New folder\image_recognition\image_recognition\image_recognition_Csharp\obj\Debug\netcoreapp3.0\image_recognition_Csharp.AssemblyInfoInputs.cache
+D:\New folder\image_recognition\image_recognition\image_recognition_Csharp\obj\Debug\netcoreapp3.0\image_recognition_Csharp.AssemblyInfo.cs
+D:\New folder\image_recognition\image_recognition\image_recognition_Csharp\obj\Debug\netcoreapp3.0\image_recognition_Csharp.dll
+D:\New folder\image_recognition\image_recognition\image_recognition_Csharp\obj\Debug\netcoreapp3.0\image_recognition_Csharp.pdb
