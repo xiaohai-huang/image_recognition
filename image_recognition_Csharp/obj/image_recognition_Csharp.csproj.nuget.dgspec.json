@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\New folder\\image_recognition\\image_recognition\\image_recognition_Csharp\\image_recognition_Csharp.csproj": {}
+    "D:\\image_recognition\\image_recognition_Csharp\\image_recognition_Csharp.csproj": {}
   },
   "projects": {
-    "D:\\New folder\\image_recognition\\image_recognition\\image_recognition_Csharp\\image_recognition_Csharp.csproj": {
+    "D:\\image_recognition\\image_recognition_Csharp\\image_recognition_Csharp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\New folder\\image_recognition\\image_recognition\\image_recognition_Csharp\\image_recognition_Csharp.csproj",
+        "projectUniqueName": "D:\\image_recognition\\image_recognition_Csharp\\image_recognition_Csharp.csproj",
         "projectName": "image_recognition_Csharp",
-        "projectPath": "D:\\New folder\\image_recognition\\image_recognition\\image_recognition_Csharp\\image_recognition_Csharp.csproj",
+        "projectPath": "D:\\image_recognition\\image_recognition_Csharp\\image_recognition_Csharp.csproj",
         "packagesPath": "C:\\Users\\86791\\.nuget\\packages\\",
-        "outputPath": "D:\\New folder\\image_recognition\\image_recognition\\image_recognition_Csharp\\obj\\",
+        "outputPath": "D:\\image_recognition\\image_recognition_Csharp\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\86791\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -37,6 +37,12 @@
       },
       "frameworks": {
         "netcoreapp3.0": {
+          "dependencies": {
+            "SixLabors.ImageSharp": {
+              "target": "Package",
+              "version": "[1.0.0-beta0007, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",
