@@ -28,7 +28,7 @@ namespace image_recognition_Csharp
             Matrix Bias = new Matrix(row: num_of_classes, col: 1);
             Bias = Bias.Set_num(0.3);
             double delta = 1.0; // safe margin in the max function
-            double step_size = 0.00001;
+            double step_size = 0.0000001;
 
             // initialize a random W
             Matrix W = new Matrix(num_of_classes, size_of_image);
