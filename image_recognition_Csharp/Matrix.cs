@@ -362,6 +362,7 @@ namespace image_recognition_Csharp
                 }
                 Console.WriteLine();
             }
+            Console.WriteLine($"\nThis is a {this.Row} x {this.Column} Matrix");
         }
 
         public string Return_String()
@@ -376,6 +377,64 @@ namespace image_recognition_Csharp
                 text = text + "\n";
             }
             return text;
+        }
+
+        // return the required as a new matrix row x 1
+        // one column matrix
+        public Matrix Get_Column(int col_index)
+        {
+            Matrix new_matrix=new Matrix(this.Row,1);
+            for (int row=0;row<this.Row;row++)
+            {
+                new_matrix[row,0]=this[row,col_index];
+            }
+            return new_matrix;
+        }
+        public Matrix Concatenate(Matrix right)
+        {
+            // check row number
+            if(this.Row!=right.Row)
+            {
+                throw new ArgumentException($"{this.Row}!={right.Row}\n row number has to be the same");
+            }
+            Matrix new_matrix = new  Matrix(this.Row,this.Column+right.Column);
+            // populate the new matrix by using the left matrix
+            for(int row=0;row<this.Row;row++)
+            {
+                for(int col=0;col<this.Column;col++)
+                {
+                    new_matrix[row,col]=this[row,col];
+                }
+            }
+
+            // using the right matrix
+            for(int row=0;row<right.Row;row++)
+            {
+                for(int col=this.Column;col<this.Column+right.Column;col++)
+                {
+                    new_matrix[row,col]=right[row,col-this.Column];
+                }
+            }
+            return new_matrix;
+
+        }
+
+        public Matrix Remove_Column(int col_index)
+        {
+            Matrix new_matrix = new Matrix(this.Row,this.Column-1);
+
+            for(int row=0;row<new_matrix.Row;row++)
+            {
+                for(int col=0;col<new_matrix.Column;col++)
+                {
+                    if(col==col_index)
+                    {
+                        continue;
+                    }
+                    new_matrix[row,col]=this[row,col];
+                }
+            }
+            return new_matrix;
         }
     }
 }
