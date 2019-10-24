@@ -144,21 +144,22 @@ namespace image_recognition_Csharp
             double h = 0.00001;
             Matrix gradient=new Matrix(W.Row,W.Column);
             gradient = gradient.Set_num(0);
-
+            double Fx = ML.Get_Full_SVM_Loss(X_train,Y_train,Bias,W);
             for (int row=0;row<W.Row;row++)
             {
                 for(int col=0;col<W.Column;col++)
                 {
                     
-                    double Fx = ML.Get_Full_SVM_Loss(X_train,Y_train,Bias,W);
+                    
                     
                     double old_w = W[row,col];
                     W[row,col]=W[row,col]+h;
 
                     double Fx_h= ML.Get_Full_SVM_Loss(X_train,Y_train,Bias,W);
+                    
+                    gradient[row,col]=(Fx_h-Fx)/h;
 
                     W[row,col]=old_w;
-                    gradient[row,col]=(Fx_h-Fx)/h;
                 }
             }
             return gradient;

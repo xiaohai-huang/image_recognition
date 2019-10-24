@@ -18,12 +18,20 @@ namespace image_recognition_Csharp
             get { return data.GetLength(1); }
             private set { Column = value; }
         }
+        /// <summary>
+        /// return the size of the matrix as a string
+        /// </summary>
+        /// <value></value>
         public string Size
         {
             get { return $"{this.Row} X {this.Column}"; }
         }
 
         //[] overload
+        /// <summary>
+        /// get the element of the matrix using the given row and col index
+        /// </summary>
+        /// <value></value>
         public double this[int row, int col]
         {
 
@@ -38,6 +46,10 @@ namespace image_recognition_Csharp
             }
 
         }
+        /// <summary>
+        /// only works for 1 column matrix, get the specific value
+        /// </summary>
+        /// <value></value>
         public double this[int row]
         {
 
@@ -73,19 +85,46 @@ namespace image_recognition_Csharp
 
         }
 
-        // constructor
+        /// <summary>
+        /// construct an empty matrix with specific row and column
+        /// </summary>
+        /// <param name="row"></param>
+        /// <param name="col"></param>
         public Matrix(int row, int col)
         {
             data = new double[row, col];
         }
-
+        /// <summary>
+        /// construct a matrix using 2D array
+        /// </summary>
+        /// <param name="input">a 2D array</param>
         public Matrix(double[,] input)
         {
             data=input;
         }
- 
-        // if input array has only 1 D
-        // reshape it to two D array, e.g 784 => 28 * 28
+        /// <summary>
+        /// construct a matrix using jagged array, and concatenate them like stretch images
+        /// </summary>
+        /// <param name="jagged"></param>
+        public Matrix(double[][] jagged)
+        {
+            //Matrix new_matrix=new Matrix(jagged[0].GetLength(0),jagged.GetLength(0));
+            Matrix new_matrix = new Matrix(row:jagged[0].GetLength(0),col:1);
+            foreach(double[] row in jagged)
+            {
+                Matrix matrix = new Matrix(row);
+                matrix=matrix.Reshape(1);
+                new_matrix=new_matrix.Concatenate(matrix);
+            }
+            new_matrix=new_matrix.Remove_Column(0);
+
+            this.data=new_matrix.data;
+        }
+        
+        /// <summary>
+        /// if input array has only 1 D,reshape it to two D array, e.g 784 => 28 * 28
+        /// </summary>
+        /// <param name="one_D_array">one dimension array</param>
         public Matrix(double[] one_D_array)
         {
             if (one_D_array.Length == 2)
@@ -135,7 +174,11 @@ namespace image_recognition_Csharp
 
         // jagged array
         
-        // dot product
+        /// <summary>
+        /// matrix dot product
+        /// </summary>
+        /// <param name="right_matrix"></param>
+        /// <returns></returns>
         public Matrix Dot(Matrix right_matrix)
         {
             Matrix output_matrix;
@@ -181,7 +224,10 @@ namespace image_recognition_Csharp
             return left.Dot(right);
         }
 
-        // sum matrix
+        /// <summary>
+        /// return the sum of the whole matrix
+        /// </summary>
+        /// <returns></returns>
         public double Sum()
         {
             double result=0;
@@ -194,7 +240,11 @@ namespace image_recognition_Csharp
             }
             return result;
         }
-        // addition
+        /// <summary>
+        /// element-wise addition
+        /// </summary>
+        /// <param name="right_matrix"></param>
+        /// <returns></returns>
         public Matrix Add(Matrix right_matrix)
         {
             Matrix added_matrix;
@@ -220,6 +270,12 @@ namespace image_recognition_Csharp
             return added_matrix;
             
         }
+        /// <summary>
+        /// element-wise addition
+        /// </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
         public static Matrix operator +(Matrix left, Matrix right) 
         {
             Matrix result;
@@ -228,7 +284,11 @@ namespace image_recognition_Csharp
             return result;
         }
 
-        // multiplication
+        /// <summary>
+        /// element-wise multiplication
+        /// </summary>
+        /// <param name="num">the number to be multiplied</param>
+        /// <returns>new matrix</returns>
         public Matrix Multiply(double num)
         {
             Matrix Multiplied_matrix=new Matrix(this.Row,this.Column);
@@ -255,7 +315,11 @@ namespace image_recognition_Csharp
             return result;
         }
 
-        // set number
+        /// <summary>
+        /// set all elements to a specific nummber
+        /// </summary>
+        /// <param name="num">the number to set</param>
+        /// <returns>a matrix which is full of the number</returns>
         public Matrix Set_num(double num)
         {
             Matrix new_matrix = new Matrix(this.Row,this.Column);
@@ -269,36 +333,16 @@ namespace image_recognition_Csharp
             return new_matrix;
         }
 
-        // get the maxinum number of the whole matrix
-        public double Get_Max()
-        {
-            Matrix one_D = this.Reshape(1);
-            double max_num=one_D[0];
-            for (int index = 0; index < one_D.Row; index++)
-            {
-                max_num = Math.Max(max_num, one_D[index]);
-            }
 
-            return max_num;
+        
 
-        }
-        public int Get_Max_index()
-        {
-            Matrix one_D = this.Reshape(1);
-            double max_num = one_D[0];
-            int result = 0;
-            for (int index = 0; index < one_D.Row; index++)
-            {
-                max_num = Math.Max(max_num, one_D[index]);
-                result = index;
-            }
-
-            return result;
-
-        }
-
-        // reshape the matrix
-        // supply row and column   
+        
+        /// <summary>
+        /// reshape the matrix,supply row and column
+        /// </summary>
+        /// <param name="row">the number of rows</param>
+        /// <param name="col">the number of columns</param>
+        /// <returns>return a row x col matrix</returns>   
         public Matrix Reshape(int row, int col)
         {
             if (row * col != this.Row * this.Column)
@@ -334,7 +378,11 @@ namespace image_recognition_Csharp
             
         }
 
-        // supply column only
+        /// <summary>
+        /// Reshapre the matrix using column number only
+        /// </summary>
+        /// <param name="col">the number of columns</param>
+        /// <returns>a reshaped matrix</returns>
         public Matrix Reshape(int col)
         {
             int row = (this.Row * this.Column) / col;
@@ -343,7 +391,7 @@ namespace image_recognition_Csharp
             
         }
 
-        // display matrix
+        
         public override string ToString()
         {
             string result;
@@ -352,19 +400,27 @@ namespace image_recognition_Csharp
 
             return result;
         }
-        public void Display()
+        /// <summary>
+        /// Display the matrix
+        /// </summary>
+        /// <param name="decimal_num">the number of decimal spaces to use</param>
+        public void Display(int decimal_num=2)
         {
             for(int row = 0; row < this.Row; row++)
             {
                 for(int col = 0; col < this.Column; col++)
                 {
-                    Console.Write(Math.Round(this[row, col],2)+"  ");
+                    Console.Write(Math.Round(this[row, col],decimal_num)+"  ");
                 }
                 Console.WriteLine();
             }
             Console.WriteLine($"\nThis is a {this.Row} x {this.Column} Matrix");
         }
 
+        /// <summary>
+        /// turn the whole matrix into a string
+        /// </summary>
+        /// <returns>a string containing the whole matrix</returns>
         public string Return_String()
         {
             string text = "";
@@ -372,15 +428,19 @@ namespace image_recognition_Csharp
             {
                 for (int col = 0; col < this.Column; col++)
                 {
-                   text=text+(Math.Round(this[row, col], 6) + ",");
+                   text=text+(Math.Round(this[row, col], 10) + ",");
                 }
                 text = text + "\n";
             }
             return text;
         }
 
-        // return the required as a new matrix row x 1
-        // one column matrix
+        
+        /// <summary>
+        /// turn the specific column into a new matrix (one column)
+        /// </summary>
+        /// <param name="col_index">the specific column</param>
+        /// <returns>one column matrix</returns>
         public Matrix Get_Column(int col_index)
         {
             Matrix new_matrix=new Matrix(this.Row,1);
@@ -390,6 +450,11 @@ namespace image_recognition_Csharp
             }
             return new_matrix;
         }
+        /// <summary>
+        /// Concatenate two matries together
+        /// </summary>
+        /// <param name="right">the matrix to be combined</param>
+        /// <returns>return the combined matrix</returns>
         public Matrix Concatenate(Matrix right)
         {
             // check row number
@@ -418,23 +483,84 @@ namespace image_recognition_Csharp
             return new_matrix;
 
         }
-
+        /// <summary>
+        /// Remove a specific column in the matrix
+        /// </summary>
+        /// <param name="col_index">the column's index to be removed</param>
+        /// <returns>return a new matrix after removing</returns>
         public Matrix Remove_Column(int col_index)
         {
-            Matrix new_matrix = new Matrix(this.Row,this.Column-1);
-
-            for(int row=0;row<new_matrix.Row;row++)
+            Matrix new_matrix;
+            if(col_index!=0)
             {
-                for(int col=0;col<new_matrix.Column;col++)
+                new_matrix=this.Get_Column(0);
+                
+                // initialize with one column, therefore, col should start with 1
+                for (int col=1;col<this.Column;col++)
                 {
-                    if(col==col_index)
+                    if(col!=col_index)
                     {
-                        continue;
+                        new_matrix=new_matrix.Concatenate(this.Get_Column(col));
                     }
-                    new_matrix[row,col]=this[row,col];
+                }
+            }
+            else
+            {
+                // initialize with one column, therefore, col should start with 2
+                new_matrix=this.Get_Column(1);
+                for (int col=2;col<this.Column;col++)
+                {
+                    
+                    new_matrix=new_matrix.Concatenate(this.Get_Column(col));
+                    
                 }
             }
             return new_matrix;
+            
+                
+            
+        }
+
+        private static double Get_one_col_max(Matrix matrix,int col_index)
+        {
+            double max=0;
+            int max_index=0;
+            for(int row=0;row<matrix.Row;row++)
+            {
+                
+                if(matrix[row,col_index]>max)
+                {
+                    max=matrix[row,col_index];
+                    max_index=row;
+                }
+            
+            }
+            return max_index;
+        }
+
+         
+         /// <summary>
+         /// find the index with max score in each column
+         /// </summary>
+         /// <param name="matrix">The matrix to be searched</param>
+         /// <returns>Return an one column matrix</returns>
+        public static Matrix Get_Max(Matrix matrix)
+        {
+            // the number of rows dependes on the column number 
+            // of the parameter
+            Matrix max_matrix = new Matrix(row:matrix.Column,col:1);
+            
+            List<double> max_list = new List<double>(); 
+            for(int column_index=0;column_index<matrix.Column;column_index++)
+            {
+                max_list.Add(Get_one_col_max(matrix,column_index));
+            }
+            
+            for(int row=0;row<max_list.Count;row++)
+            {
+                max_matrix[row]=max_list[row];
+            }
+            return max_matrix;
         }
     }
 }
