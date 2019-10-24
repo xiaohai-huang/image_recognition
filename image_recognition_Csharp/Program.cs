@@ -44,10 +44,15 @@ namespace image_recognition_Csharp
             
             string file_path=@"mnist_train.csv";
             double[][] x_arr = Image.Get_data(file_path);
-            
-
             double[] y_arr =Image.Get_labels(file_path);
-            
+
+            // sample 256 examples
+            x_arr = Matrix.sample_training_data(x_arr,256);
+            y_arr=Matrix.sample_training_data(y_arr,256);
+                        
+
+
+            // bias
             double[,] b_arr =
             {
                 {0},
@@ -110,6 +115,7 @@ namespace image_recognition_Csharp
                 if(loss_new<1){break;}
                 
             }
+            
             // predict
             Matrix scores = W.Dot(X_test);
             Matrix Y_predict = Matrix.Get_Max(scores);
