@@ -60,6 +60,7 @@ namespace image_recognition_Csharp
             double loss_orginal = ML.Get_Full_SVM_Loss(X_train,Y_train,Bias,W);
             Console.WriteLine($"orginal loss is {loss_orginal}");
             
+            int time_tried = 0;
             while (true)
             {
                 Matrix weights_grad = ML.Eval_Numerical_Gradient(X_train,Y_train,Bias,W);
@@ -68,6 +69,12 @@ namespace image_recognition_Csharp
                 double loss_new = ML.Get_Full_SVM_Loss(X_train,Y_train,Bias,W);
                 Console.WriteLine($"new loss is {loss_new}");
 
+                string text_to_write = W.Return_String();
+
+                string W_result_path = @"W_result.txt";
+
+                System.IO.File.WriteAllText(W_result_path, $"{text_to_write}\nloss is {loss_new}\nTried times: {time_tried}");
+                time_tried++;
                 
                 if(loss_new<1){break;}
             }
