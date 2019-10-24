@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.PixelFormats;
 using System.IO;
 
@@ -37,10 +33,10 @@ namespace image_recognition_Csharp
 
 
         // for minist dataset
-        public static int[] Get_labels(string file_path)
+        public static double[] Get_labels(string file_path)
         {
             string[] lines = System.IO.File.ReadAllLines(file_path);
-            int[] labels=new int[lines.Length];
+            double[] labels=new double[lines.Length];
             int index = 0;
 
             foreach(string line in lines)
