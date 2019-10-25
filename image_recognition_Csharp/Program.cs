@@ -32,6 +32,7 @@ namespace image_recognition_Csharp
             };
             Matrix A = new Matrix(a_arr);
             Matrix B = new Matrix(b_arr);
+            Console.WriteLine(A.Return_String());
             A.Display();
             Console.WriteLine();
             A=A.Remove_Column(1);
@@ -47,8 +48,8 @@ namespace image_recognition_Csharp
             double[] y_arr =Image.Get_labels(file_path);
 
             // sample 256 examples
-            x_arr = Matrix.sample_training_data(x_arr,256);
-            y_arr=Matrix.sample_training_data(y_arr,256);
+            x_arr = Matrix.sample_training_data(x_arr,32);
+            y_arr=Matrix.sample_training_data(y_arr,32);
                         
 
 
@@ -84,13 +85,12 @@ namespace image_recognition_Csharp
             
             
             Matrix X_train = new Matrix(x_arr);
-            
+            Matrix Y_train = new Matrix(y_arr);//change the constructor
+            Y_train=Y_train.Reshape(1);
+
 
             Matrix X_test = new Matrix(X_test_arr);
             
-
-            Matrix Y_train = new Matrix(y_arr);//change the constructor
-            Y_train=Y_train.Reshape(1);
 
             Matrix W = new Matrix(row:10,col:28*28);
             W=W.Set_num(3);

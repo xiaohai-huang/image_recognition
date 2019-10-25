@@ -426,11 +426,19 @@ namespace image_recognition_Csharp
             string text = "";
             for (int row = 0; row < this.Row; row++)
             {
+                text=text+"{";
                 for (int col = 0; col < this.Column; col++)
                 {
-                   text=text+(Math.Round(this[row, col], 10) + ",");
+                    if(col==this.Column-1)
+                    {
+                        text=text+(this[row, col]);
+                    }
+                    else
+                    {
+                        text=text+(this[row, col] + ",");
+                    }
                 }
-                text = text + "\n";
+                text = text + "},\n";
             }
             return text;
         }
