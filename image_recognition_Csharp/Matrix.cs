@@ -137,6 +137,10 @@ namespace image_recognition_Csharp
             }
             else
             {
+                if(Math.Sqrt(one_D_array.Length)>(int)Math.Sqrt(one_D_array.Length))
+                {
+                    throw new ArgumentException("The 1D array cannot be fully square rooted.");
+                }
 
                 // sqrt return a double
                 // in order to reshape an array, the array has to be ** 1/2
