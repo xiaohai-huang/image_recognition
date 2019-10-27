@@ -108,16 +108,33 @@ namespace image_recognition_Csharp
         /// <param name="jagged"></param>
         public Matrix(double[][] jagged)
         {
-            //Matrix new_matrix=new Matrix(jagged[0].GetLength(0),jagged.GetLength(0));
-            Matrix new_matrix = new Matrix(row:jagged[0].GetLength(0),col:1);
+            // concatenation is low efficiency
+            // //Matrix new_matrix=new Matrix(jagged[0].GetLength(0),jagged.GetLength(0));
+            // Matrix new_matrix = new Matrix(row:jagged[0].GetLength(0),col:1);
+            // foreach(double[] row in jagged)
+            // {
+            //     Matrix matrix = new Matrix(row);
+            //     matrix=matrix.Reshape(1);
+            //     new_matrix=new_matrix.Concatenate(matrix);
+            // }
+            // new_matrix=new_matrix.Remove_Column(0);
+
+            // this.data=new_matrix.data;
+
+            //----- 
+            // construct an empty matrix to be populated
+            Matrix new_matrix=new Matrix(row:jagged[0].GetLength(0),col:jagged.GetLength(0));
+
+            //
+            int col_index=0;
             foreach(double[] row in jagged)
             {
-                Matrix matrix = new Matrix(row);
-                matrix=matrix.Reshape(1);
-                new_matrix=new_matrix.Concatenate(matrix);
+                for(int inner_row_index=0;inner_row_index<row.Length;inner_row_index++)
+                {
+                    new_matrix[inner_row_index,col_index]=row[inner_row_index];
+                }
+                col_index++;
             }
-            new_matrix=new_matrix.Remove_Column(0);
-
             this.data=new_matrix.data;
         }
         
@@ -582,9 +599,12 @@ namespace image_recognition_Csharp
         /// <returns>sample data jagged array</returns>
         public static double[][] sample_training_data(double[][] data, int num_of_examples)
         {
-            if(data.GetLength(0)<=num_of_examples)
+            if(data.GetLength(0)<num_of_examples)
             {
                 throw new ArgumentException($"the size of data are samaller enough, cannot be sampled further");
+            }else if(data.GetLength(0)==num_of_examples)
+            {
+                return data;
             }
             
             double[][] result = new double[num_of_examples][];
@@ -606,14 +626,20 @@ namespace image_recognition_Csharp
         /// <returns>sample data 1D array</returns>
         public static double[] sample_training_data(double[] data, int num_of_examples)
         {
-            if(data.GetLength(0)<=num_of_examples)
+            if(data.GetLength(0)<num_of_examples)
             {
                 throw new ArgumentException($"the size of data are samaller enough, cannot be sampled further");
+            }
+            else if(data.GetLength(0)==num_of_examples)
+            {
+                return data;
             }
 
             double[] result= new List<double>(data).GetRange(0,num_of_examples).ToArray();
             return result;
 
         }
-    }
+
+        
+        }
 }

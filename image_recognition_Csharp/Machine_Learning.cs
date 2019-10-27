@@ -8,6 +8,13 @@ namespace image_recognition_Csharp
  
 
         // score function
+        /// <summary>
+        /// Get the score matrix
+        /// </summary>
+        /// <param name="input_data"></param>
+        /// <param name="W"></param>
+        /// <param name="Bias"></param>
+        /// <returns>a matrix of scores</returns>
         public static Matrix Get_Scores(Matrix input_data, Matrix W, Matrix Bias)
         {
             Matrix Scores = W * input_data + Bias;
@@ -18,7 +25,14 @@ namespace image_recognition_Csharp
 
         // SVM loss function calculate the loss of the given image
         // data loss
-        public static double Get_SVM_Loss(Matrix Scores, int correct_class_index, double delta)
+        /// <summary>
+        /// calculate the SVM loss of the given image
+        /// </summary>
+        /// <param name="Scores">the score matrix</param>
+        /// <param name="correct_class_index">the correct index</param>
+        /// <param name="delta">safe margin</param>
+        /// <returns>the single loss</returns>
+        private static double Get_SVM_Loss(Matrix Scores, int correct_class_index, double delta)
         {
             double loss = 0;
             for (int x = 0; x < Scores.Row; x++)
@@ -58,6 +72,14 @@ namespace image_recognition_Csharp
 
         // X_train is the data where each column is an example (e.g. 3703 x 50,000)
         // Y_train are the labels (5000 * 1)
+        /// <summary>
+        /// Get the SVM loss
+        /// </summary>
+        /// <param name="X_train">A matrix that already stretch into columns</param>
+        /// <param name="Y_train">1 column matrix</param>
+        /// <param name="Bias"></param>
+        /// <param name="W">row number = number of classes</param>
+        /// <returns>SVM loss</returns>
         public static double Get_Full_SVM_Loss(Matrix X_train, Matrix Y_train,Matrix Bias, Matrix W)
         {
             if(X_train.Column!=Y_train.Row)
@@ -77,11 +99,13 @@ namespace image_recognition_Csharp
             return loss_mean;
         }
 
-        // regulariztion function L2
-        // to get regularization loss
-        // L is a hyperparameter that controls the strength of the L2 regularization penalty
-        // L L2 Regularization strength
-        // regularization loss
+        
+        /// <summary>
+        /// regulariztion function L2, to get regularization loss
+        /// </summary>
+        /// <param name="W"></param>
+        /// <param name="L">L is a hyperparameter that controls the strength of the L2 regularization penalty</param>
+        /// <returns>regularization loss</returns>
         public static double Get_Regularization_Loss(Matrix W, double L)
         {
             double loss = 0;
@@ -94,50 +118,6 @@ namespace image_recognition_Csharp
             }
             return L * loss;
         }
-
-        // numerical gradient
-        // public static Matrix Get_Numerical_Gradient(Matrix input_data, Matrix Bias, Matrix W,int correct_label)
-        // {
-        //     // declare the graident matrix to be returned
-        //     double[,] Gradient_array = new double[W.Row, W.Column];
-        //     Matrix Gradient;
-
-        //     // delta
-        //     double delta = 1;
-
-        //     // get the f(x) = orginal loss
-        //     Matrix Scores = Get_Scores(input_data, W, Bias);
-        //     double orginal_loss = Get_SVM_Loss(Scores,correct_label,delta);
-        //     Get_Full_SVM_Loss()
-        //     Matrix Current_W = W;
-
-        //     //  dims
-        //     // get the f(x+h) = new loss
-        //     double h = 0.0001;
-        //     for (int row=0; row < W.Row; row++)
-        //     {
-        //         for(int col = 0; col < W.Column; col++)
-        //         {
-                    
-        //             Matrix W_h = Current_W;
-        //             W_h[row, col] = W_h[row, col] + h;
-        //             Matrix New_Scores = Get_Scores(input_data, W_h, Bias);
-        //             double new_loss = Get_SVM_Loss(New_Scores, correct_label, delta);
-
-        //             // [f(x+h) - f(x)] / h
-        //             double gradient = (new_loss - orginal_loss) / h;
-                    
-        //             Gradient_array[row, col] = gradient;
-        //         }
-        //     }
-           
-
-
-        //     Gradient = new Matrix(Gradient_array);
-
-        //     return Gradient;
-            
-        // }
 
         public static Matrix Eval_Numerical_Gradient(Matrix X_train, Matrix Y_train,Matrix Bias,Matrix W)
         {
@@ -164,7 +144,76 @@ namespace image_recognition_Csharp
             }
             return gradient;
         }
+        /// <summary>
+        /// Calculate the gradient by passing loss function
+        /// </summary>
+        /// <param name="loss_func">the loss function</param>
+        /// <param name="W">Weight</param>
+        /// <returns>a matrix containing gradient</returns>
+        public static Matrix Eval_Numerical_Gradient(Func<Matrix,double> loss_func, Matrix W)
+        {
+            double h = 0.00001;
+            Matrix gradient=new Matrix(W.Row,W.Column);
+            gradient = gradient.Set_num(0);
 
+            double Fx = loss_func(W);
+
+             for (int row=0;row<W.Row;row++)
+            {
+                for(int col=0;col<W.Column;col++)
+                {
+                    
+                    double old_w = W[row,col];
+                    W[row,col]=W[row,col]+h;
+
+                    double Fx_h= loss_func(W);
+                    
+                    gradient[row,col]=(Fx_h-Fx)/h;
+
+                    W[row,col]=old_w;
+                }
+            }
+            return gradient;
+        }
+
+
+
+
+
+        // <summary>
+        /// Calculate the accurate rate, errors/num_of_samples
+        /// </summary>
+        /// <param name="Prediction">1 column matrix</param>
+        /// <param name="Answer">1 column matrix</param>
+        /// <returns>accurate rate</returns>
+        public static double Get_accuracy(Matrix Prediction, Matrix Answer)
+        {
+            // check argument
+            if(Prediction.Row!=Answer.Row)
+            {
+                throw new ArgumentException("answer's amount and prediction's amount doesn't match!");
+            }else if(Prediction.Column!=1)
+            {
+                throw new ArgumentException("only one column argument is acceptable");
+            }
+            double num_of_samples = Prediction.Row;
+            double errors=0;
+            for(int row_index=0;row_index<Prediction.Row;row_index++)
+            {
+                if(Prediction[row_index,0]==Answer[row_index,0])
+                {
+                    errors=errors+1;
+                }
+            }
+            double accurate_rate = errors/num_of_samples;
+
+            return accurate_rate;
+        
+    
+        }
+    
+    
+    
     }
     
 }
