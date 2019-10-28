@@ -639,7 +639,10 @@ namespace image_recognition_Csharp
             return result;
 
         }
-
-        
+        public static void WriteToFile(string text_to_write,string file_path)
+        {
+            System.IO.File.WriteAllText(file_path,text_to_write);
         }
+        
+    }
 }
