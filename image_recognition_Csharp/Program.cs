@@ -9,7 +9,7 @@ namespace image_recognition_Csharp
 
         public static void Main()
         {
-            Matrix W = new Matrix("W.txt");
+            Matrix W = new Matrix(row:2,col:316*256);
             
             // get the data and labels
             string l_img_1 ="IXI536-Guys-1059-T1";
