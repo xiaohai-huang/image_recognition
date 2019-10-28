@@ -193,7 +193,54 @@ namespace image_recognition_Csharp
             }
         }
 
-        // jagged array
+        /// <summary>
+        /// Construct a matrix using a text file
+        /// </summary>
+        /// <param name="file_path">the file contains matrix</param>
+        public Matrix(string file_path)
+        {
+            string[] lines = System.IO.File.ReadAllLines(file_path);
+
+            List<string> matrix_part = new List<string>();
+            // get the matrix part, and remove the {},
+            foreach(string line in lines)
+            {
+                try// if empty break
+                {
+                    if(line.Substring(0,1)!="{")// if not { break
+                    {
+                        break;
+                    }
+
+                }
+                catch (ArgumentOutOfRangeException)
+                {
+                    break;
+                }
+                matrix_part.Add(line.Substring(1,line.Length-3));//-2 means skip "},"
+            }  
+
+            int col_num = matrix_part[0].Split(",").Length;
+            double[,] matrix_arr=new double[matrix_part.Count,col_num];
+            int row=0;
+            foreach(string line in matrix_part)
+            {
+                string[] nums_str = line.Split(",");
+                for(int col=0;col<nums_str.Length;col++)
+                {
+                    matrix_arr[row,col]=double.Parse(nums_str[col]);
+                }
+                row++;
+            }
+            this.data=matrix_arr;
+            
+
+            
+           
+            
+            //this.data=matrix_arr;
+        } 
+    
         
         /// <summary>
         /// matrix dot product
@@ -273,8 +320,8 @@ namespace image_recognition_Csharp
             if (this.Size != right_matrix.Size)
             {
                 Console.WriteLine("Cannot add these two matries together");
-                Console.WriteLine($"Orginal: {this.Size} is not equal to Output: {right_matrix.Size}");
-                return this;
+                throw new ArgumentException($"Orginal: {this.Size} is not equal to the right matrix: {right_matrix.Size}");
+                
             }
             else
             {
@@ -644,5 +691,6 @@ namespace image_recognition_Csharp
             System.IO.File.WriteAllText(file_path,text_to_write);
         }
         
+    
     }
 }
