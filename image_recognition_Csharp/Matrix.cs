@@ -7,7 +7,8 @@ namespace image_recognition_Csharp
     class Matrix
     {
         // class fields
-        private double[,] data;
+        public double[,] data;
+        
         public int Row
         {
             get { return data.GetLength(0); }
@@ -38,7 +39,6 @@ namespace image_recognition_Csharp
             get
             {
                 return data[row, col];
-                throw new ArgumentException("Invalid index!");
             }
             set
             {
@@ -52,8 +52,6 @@ namespace image_recognition_Csharp
         /// <value></value>
         public double this[int row]
         {
-
-
             get
             {
                 if (this.Column == 1)
@@ -64,7 +62,6 @@ namespace image_recognition_Csharp
                 {
                     Console.WriteLine("Invalid indexing");
                     throw new ArgumentException();
-                    
                 }
                 
             }
@@ -79,7 +76,6 @@ namespace image_recognition_Csharp
                 {
                     Console.WriteLine("Invalid indexing");
                     throw new ArgumentException();
-                    
                 }
             }
 
@@ -733,6 +729,28 @@ namespace image_recognition_Csharp
             string text_to_write = this.Return_String();
             WriteToFile(text_to_write,file_path);
         }
-    
+        /// <summary>
+        /// Convert all images from the given folder into a matrix, each column is an image(images have been stretch into columns).Key is file name, value is the matrix
+        /// </summary>
+        /// <param name="folder">the folder contains images</param>
+        /// <returns>a dictionary, Key is file name, value is matrix</returns>
+        public static Dictionary<string,Matrix> Load_Image_Folder_Dict(string folder)
+        {
+            // matrix has to be reshapped into 1 column
+            Dictionary<string,Matrix> result=new Dictionary<string, Matrix>();
+
+            // get all the filenames within the given folder
+            string[] fileNames = System.IO.Directory.GetFiles(folder);
+            foreach(string fileName in fileNames)
+            {
+                Matrix matrix = new Matrix(Image.LoadImage(fileName)).Reshape(1);
+                result.Add(fileName,matrix);
+            }
+            return result;
+        }
+        public double[,] Get_Data()
+        {
+            return this.data;
+        }
     }
 }

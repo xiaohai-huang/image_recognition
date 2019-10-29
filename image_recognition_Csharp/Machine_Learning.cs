@@ -208,10 +208,51 @@ namespace image_recognition_Csharp
             double accurate_rate = errors/num_of_samples;
 
             return accurate_rate;
-        
-    
         }
-    
+
+        /// <summary>
+        /// calculate numerical graident to do gradient descent, and return the W
+        /// </summary>
+        /// <param name="X_train">train data, must be strectch into columns</param>
+        /// <param name="Y_train">the labels, one column</param>
+        /// <param name="write_to_file">save the W as a text file</param>
+        /// <param name="fileName">the text file's name</param>
+        /// <returns>the matrix W</returns>
+        public static Matrix Train_model(Matrix X_train, Matrix Y_train,bool write_to_file=false, string fileName="W.txt")
+        {
+            // row = number of classes, column is number of pixels
+            Matrix W = new Matrix(Y_train.Row,X_train.Row).Set_num(0.2);
+
+            // bias one column
+            Matrix Bias = new Matrix(Y_train.Row,1).Set_num(0.5);
+
+            // update the W
+            int time_tried=0;
+            while(true)
+            {
+                // -----main part of updating
+                Matrix grad=ML.Eval_Numerical_Gradient(X_train,Y_train,Bias,W);
+                W+=-0.001*grad;
+                // ------
+
+                // display progress
+                double loss = ML.Get_Full_SVM_Loss(X_train,Y_train,Bias,W);
+                Console.WriteLine($"The current loss is {loss}");
+                Console.WriteLine($"Time tried: {time_tried}");
+
+                // write to file
+                if(write_to_file==true)
+                {
+                    string W_text=W.Return_String()+$"\nloss: {loss}\ntime tried: {time_tried}";
+                    Matrix.WriteToFile(W_text,fileName);
+                }
+                
+                time_tried++;
+
+                if(loss==0){return W;}
+            }
+
+        }
         
     
     }

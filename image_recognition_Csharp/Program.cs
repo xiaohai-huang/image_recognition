@@ -22,17 +22,17 @@ namespace image_recognition_Csharp
             string r_img_1="IXI625-Guys-1098-T1";
             string r_img_2="IXI482-HH-2178-T1";
 
-            double[,] l_img_1_arr = MRI.LoadImage($@"{image_root}/{l_img_1}.png");
-            double[,] l_img_2_arr = MRI.LoadImage($@"{image_root}/{l_img_2}.png");
-            double[,] l_img_3_arr = MRI.LoadImage($@"{image_root}/{l_img_3}.png");
-            double[,] l_img_4_arr = MRI.LoadImage($@"{image_root}/{l_img_4}.png");
-            double[,] l_img_5_arr = MRI.LoadImage($@"{image_root}/{l_img_5}.png");
-            double[,] l_img_6_arr = MRI.LoadImage($@"{image_root}/{l_img_6}.png");
+            double[,] l_img_1_arr = Image.LoadImage($@"{image_root}/{l_img_1}.png");
+            double[,] l_img_2_arr = Image.LoadImage($@"{image_root}/{l_img_2}.png");
+            double[,] l_img_3_arr = Image.LoadImage($@"{image_root}/{l_img_3}.png");
+            double[,] l_img_4_arr = Image.LoadImage($@"{image_root}/{l_img_4}.png");
+            double[,] l_img_5_arr = Image.LoadImage($@"{image_root}/{l_img_5}.png");
+            double[,] l_img_6_arr = Image.LoadImage($@"{image_root}/{l_img_6}.png");
             
 
 
-            double[,] r_img_1_arr = MRI.LoadImage($@"{image_root}/{r_img_1}.png");
-            double[,] r_img_2_arr = MRI.LoadImage($@"{image_root}/{r_img_2}.png");
+            double[,] r_img_1_arr = Image.LoadImage($@"{image_root}/{r_img_1}.png");
+            double[,] r_img_2_arr = Image.LoadImage($@"{image_root}/{r_img_2}.png");
             
 
             double[,] Y_train_arr = 
@@ -81,23 +81,7 @@ namespace image_recognition_Csharp
 
 
         }
-        
-        public static Dictionary<string,Matrix> Get_MRI_data()
-        {
-            // matrix has to be reshapped into 1 column
-            Dictionary<string,Matrix> result=new Dictionary<string, Matrix>();
-
-            // get all the filenames within the given folder
-            string[] fileNames = System.IO.Directory.GetFiles(image_root);
-            for(int file_num=0;file_num<fileNames.Length;file_num++)
-            {
-                Matrix matrix = new Matrix(MRI.LoadImage(fileNames[file_num])).Reshape(1);
-                result.Add(fileNames[file_num],matrix);
-            }
-            return result;
-
-        }
-        public static void test()
+        public static void Main()
         {
             // read W from file
             Matrix W = new Matrix("W.txt");
@@ -106,7 +90,7 @@ namespace image_recognition_Csharp
             Matrix Bias = new Matrix(row:2,col:1).Set_num(0.5);
 
             // key is the file name, value is image's pixel values in matrix
-            Dictionary<string,Matrix> MRI_data=Get_MRI_data();
+            Dictionary<string,Matrix> MRI_data=Matrix.Load_Image_Folder_Dict(image_root);
 
             // start testing
             foreach(var name_matrix in MRI_data)
@@ -121,15 +105,6 @@ namespace image_recognition_Csharp
                 }
             }
 
-        }
-    
-        public static void Main()
-        {
-            // Matrix matrix = new Matrix(10,10).Set_num(4.3);
-
-            // matrix.SaveMatrix("test_save.txt");
-            Matrix matrix = new Matrix("test_save.txt");
-            matrix.Display();
         }
     }
 }
