@@ -7,7 +7,7 @@ namespace image_recognition_Csharp
     {
         public static string image_root = @"MRI";
 
-        public static void Main()
+        public static void Train_method()
         {
             Matrix W = new Matrix(row:2,col:316*256);
             
@@ -97,15 +97,23 @@ namespace image_recognition_Csharp
             return result;
 
         }
-        public static void Final_test()
+        public static void test()
         {
+            // read W from file
             Matrix W = new Matrix("W.txt");
+
+            // set up a random bias
             Matrix Bias = new Matrix(row:2,col:1).Set_num(0.5);
+
+            // key is the file name, value is image's pixel values in matrix
             Dictionary<string,Matrix> MRI_data=Get_MRI_data();
 
+            // start testing
             foreach(var name_matrix in MRI_data)
             {
                 Matrix score = ML.Get_Scores(name_matrix.Value,W,Bias);
+                
+                // to see wether it is in index 0 or 1
                 Matrix result = Matrix.Get_Max(score);
                 if(result[0]!=0)
                 {
@@ -113,6 +121,15 @@ namespace image_recognition_Csharp
                 }
             }
 
+        }
+    
+        public static void Main()
+        {
+            // Matrix matrix = new Matrix(10,10).Set_num(4.3);
+
+            // matrix.SaveMatrix("test_save.txt");
+            Matrix matrix = new Matrix("test_save.txt");
+            matrix.Display();
         }
     }
 }
