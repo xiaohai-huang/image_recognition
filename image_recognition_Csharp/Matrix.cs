@@ -199,46 +199,73 @@ namespace image_recognition_Csharp
         /// <param name="file_path">the file contains matrix</param>
         public Matrix(string file_path)
         {
+            // get all the lines in the text file
             string[] lines = System.IO.File.ReadAllLines(file_path);
 
+            // extract the matrix part and store in a list, line by line
             List<string> matrix_part = new List<string>();
+
             // get the matrix part, and remove the {},
             foreach(string line in lines)
             {
                 try// if empty break
-                {
+                {   
+                    // if it does not start with {, break the foreach loop
                     if(line.Substring(0,1)!="{")// if not { break
                     {
                         break;
                     }
-
-                }
+                }// try is for empty line, if it is an empty line also break
                 catch (ArgumentOutOfRangeException)
                 {
                     break;
                 }
                 matrix_part.Add(line.Substring(1,line.Length-3));//-2 means skip "},"
             }  
-
+            
+            // get the number of the columns
             int col_num = matrix_part[0].Split(",").Length;
+
+            // declare the matrix
             double[,] matrix_arr=new double[matrix_part.Count,col_num];
             int row=0;
-            foreach(string line in matrix_part)
+            try
             {
-                string[] nums_str = line.Split(",");
-                for(int col=0;col<nums_str.Length;col++)
+                foreach(string line in matrix_part)
                 {
-                    matrix_arr[row,col]=double.Parse(nums_str[col]);
+                    string[] nums_str = line.Split(",");
+                    if(nums_str.Length!=col_num)
+                    {
+                        // e.g.
+                        // {1,2,3},
+                        // {4,5},
+                        throw new Exception($"The length of column should be the same,\nColumn number: {nums_str.Length} is not eaqual to the other row's column number {col_num}");
+                    }
+                    for(int col=0;col<nums_str.Length;col++)
+                    {
+                        matrix_arr[row,col]=double.Parse(nums_str[col]);
+                    }
+                    row++;
                 }
-                row++;
+            }
+            catch(IndexOutOfRangeException)
+            {
+                // e.g. 
+                // {1,2,3},
+                // {4,5,6,7},
+                throw new Exception("The length of row or column should be the same");
+            }
+            catch(FormatException)
+            {
+                // e.g. (1)
+                // {1,2,3},
+                // {4,5,d},
+                // e.g. (2)
+                // {1,2,3},
+                // {4,5,},
+                throw new Exception("Matrix can only contain numbers");
             }
             this.data=matrix_arr;
-            
-
-            
-           
-            
-            //this.data=matrix_arr;
         } 
     
         
@@ -486,7 +513,7 @@ namespace image_recognition_Csharp
         }
 
         /// <summary>
-        /// turn the whole matrix into a string
+        /// turn the whole matrix into a string, that can be directly save as a text file
         /// </summary>
         /// <returns>a string containing the whole matrix</returns>
         public string Return_String()
@@ -523,6 +550,20 @@ namespace image_recognition_Csharp
             for (int row=0;row<this.Row;row++)
             {
                 new_matrix[row,0]=this[row,col_index];
+            }
+            return new_matrix;
+        }
+        /// <summary>
+        /// turn the specific row into a new matrix (one row)
+        /// </summary>
+        /// <param name="row_index">the index of the row</param>
+        /// <returns>one row matrix</returns>
+        public Matrix Get_Row(int row_index)
+        {
+            Matrix new_matrix=new Matrix(row:1,col:this.Column);
+            for(int col=0;col<this.Column;col++)
+            {
+                new_matrix[0,col]=this[row_index,col];
             }
             return new_matrix;
         }
@@ -592,9 +633,6 @@ namespace image_recognition_Csharp
                 }
             }
             return new_matrix;
-            
-                
-            
         }
 
         private static double Get_one_col_max(Matrix matrix,int col_index)
@@ -613,7 +651,6 @@ namespace image_recognition_Csharp
             }
             return max_index;
         }
-
          
          /// <summary>
          /// find the index with max score in each column
@@ -691,6 +728,11 @@ namespace image_recognition_Csharp
             System.IO.File.WriteAllText(file_path,text_to_write);
         }
         
+        public void SaveMatrix(string file_path)
+        {
+            string text_to_write = this.Return_String();
+            WriteToFile(text_to_write,file_path);
+        }
     
     }
 }
