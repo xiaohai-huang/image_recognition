@@ -65,20 +65,7 @@ namespace image_recognition_Csharp
             
             Matrix Bias = new Matrix(row:2,col:1).Set_num(0.5);
             
-           int time_tried=0;
-            while(true)
-            {
-                Matrix grad=ML.Eval_Numerical_Gradient(X_train,Y_train,Bias,W);
-                W+=-0.001*grad;
-                double loss = ML.Get_Full_SVM_Loss(X_train,Y_train,Bias,W);
-                Console.WriteLine(loss);
-                string W_text=W.Return_String()+$"\nloss: {loss}\ntime tried: {time_tried}";
-                Matrix.WriteToFile(W_text,"W.txt");
-                time_tried++;
-
-                if(loss==0){break;}
-            }
-
+           ML.Train_model(X_train,Y_train,true);
 
         }
         public static void Main()

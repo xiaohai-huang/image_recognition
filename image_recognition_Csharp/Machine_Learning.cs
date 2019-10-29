@@ -218,7 +218,7 @@ namespace image_recognition_Csharp
         /// <param name="write_to_file">save the W as a text file</param>
         /// <param name="fileName">the text file's name</param>
         /// <returns>the matrix W</returns>
-        public static Matrix Train_model(Matrix X_train, Matrix Y_train,bool write_to_file=false, string fileName="W.txt")
+        public static Matrix Train_model(Matrix X_train, Matrix Y_train,bool verbose=true, bool write_to_file=false, string fileName="W.txt")
         {
             // row = number of classes, column is number of pixels
             Matrix W = new Matrix(Y_train.Row,X_train.Row).Set_num(0.2);
@@ -237,8 +237,11 @@ namespace image_recognition_Csharp
 
                 // display progress
                 double loss = ML.Get_Full_SVM_Loss(X_train,Y_train,Bias,W);
-                Console.WriteLine($"The current loss is {loss}");
-                Console.WriteLine($"Time tried: {time_tried}");
+                if(verbose==true)
+                {
+                    Console.WriteLine($"The current loss is {loss}");
+                    Console.WriteLine($"Time tried: {time_tried}");
+                }
 
                 // write to file
                 if(write_to_file==true)
@@ -249,6 +252,7 @@ namespace image_recognition_Csharp
                 
                 time_tried++;
 
+                // terminate section
                 if(loss==0){return W;}
             }
 
