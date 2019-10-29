@@ -9,7 +9,7 @@ namespace image_recognition_Csharp
 
         // score function
         /// <summary>
-        /// Get the score matrix
+        /// Get the score matrix, only works for one instance
         /// </summary>
         /// <param name="input_data"></param>
         /// <param name="W"></param>
@@ -17,6 +17,9 @@ namespace image_recognition_Csharp
         /// <returns>a matrix of scores</returns>
         public static Matrix Get_Scores(Matrix input_data, Matrix W, Matrix Bias)
         {
+            // beacuse Bias is one column matrix,
+            // so this method only works for one instance.
+            if(input_data.Column!=1){throw new Exception("only one example each time");}
             Matrix Scores = W * input_data + Bias;
 
             return Scores;
@@ -99,6 +102,11 @@ namespace image_recognition_Csharp
             return loss_mean;
         }
 
+        public static double Get_Full_SVM_Loss_with_Regularization(Matrix X_train, Matrix Y_train,Matrix Bias, Matrix W, double L2_strength=0.1)
+        {
+            double full_loss = ML.Get_Full_SVM_Loss(X_train,Y_train,Bias,W)+ML.Get_Regularization_Loss(W,L2_strength);
+            return full_loss;
+        }
         
         /// <summary>
         /// regulariztion function L2, to get regularization loss
@@ -147,7 +155,7 @@ namespace image_recognition_Csharp
         /// <summary>
         /// Calculate the gradient by passing loss function
         /// </summary>
-        /// <param name="loss_func">the loss function</param>
+        /// <param name="loss_func">the loss function, that only takes W as the only parameter and return the loss</param>
         /// <param name="W">Weight</param>
         /// <returns>a matrix containing gradient</returns>
         public static Matrix Eval_Numerical_Gradient(Func<Matrix,double> loss_func, Matrix W)
@@ -162,7 +170,6 @@ namespace image_recognition_Csharp
             {
                 for(int col=0;col<W.Column;col++)
                 {
-                    
                     double old_w = W[row,col];
                     W[row,col]=W[row,col]+h;
 
@@ -210,6 +217,12 @@ namespace image_recognition_Csharp
             return accurate_rate;
         }
 
+        public static double Get_accuracy(Matrix X_test, Matrix Y_test, Matrix W)
+        {
+            Matrix prediction = Matrix.Get_Max((W*X_test));
+            double accurate_rate = Get_accuracy(prediction,Y_test);
+            return accurate_rate;
+        }
         /// <summary>
         /// calculate numerical graident to do gradient descent, and return the W
         /// </summary>
@@ -218,7 +231,7 @@ namespace image_recognition_Csharp
         /// <param name="write_to_file">save the W as a text file</param>
         /// <param name="fileName">the text file's name</param>
         /// <returns>the matrix W</returns>
-        public static Matrix Train_model(Matrix X_train, Matrix Y_train,bool verbose=true, bool write_to_file=false, string fileName="W.txt")
+        public static Matrix Train_model(Matrix X_train, Matrix Y_train,double min_loss=1,bool verbose=true, string fileName="")
         {
             // row = number of classes, column is number of pixels
             Matrix W = new Matrix(Y_train.Row,X_train.Row).Set_num(0.2);
@@ -244,7 +257,7 @@ namespace image_recognition_Csharp
                 }
 
                 // write to file
-                if(write_to_file==true)
+                if(fileName!="")
                 {
                     string W_text=W.Return_String()+$"\nloss: {loss}\ntime tried: {time_tried}";
                     Matrix.WriteToFile(W_text,fileName);
@@ -253,11 +266,46 @@ namespace image_recognition_Csharp
                 time_tried++;
 
                 // terminate section
-                if(loss==0){return W;}
+                if(loss<min_loss){return W;}
             }
 
         }
         
+        public static Matrix Train_model(Func<Matrix,double> loss_func,Matrix W,double min_loss=1,bool verbose=true,string fileName="")
+        {
+            Matrix new_W = W;
+            // update W
+            int time_tried=0;
+            while(true)
+            {
+                // ------updating part
+                Matrix grad = ML.Eval_Numerical_Gradient(loss_func,new_W);
+                new_W = new_W +(-0.001*grad);
+                // -------
+
+                // display progress
+                double loss = loss_func(new_W);
+                if(verbose==true)
+                {
+                    Console.WriteLine($"The current loss is {loss}");
+                    Console.WriteLine($"Time tried: {time_tried}");
+                }
+
+                // write to file
+                if(fileName!="")
+                {
+                    string W_text=W.Return_String()+$"\nloss: {loss}\ntime tried: {time_tried}";
+                    Matrix.WriteToFile(W_text,fileName);
+                }
+                
+                time_tried++;
+
+
+                // terminate section
+                if(loss<min_loss){break;}
+            }
+            return new_W;
+        }
     
     }
     

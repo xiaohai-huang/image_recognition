@@ -65,10 +65,10 @@ namespace image_recognition_Csharp
             
             Matrix Bias = new Matrix(row:2,col:1).Set_num(0.5);
             
-           ML.Train_model(X_train,Y_train,true);
+           ML.Train_model(X_train,Y_train);
 
         }
-        public static void Main()
+        public static void Test_MRI()
         {
             // read W from file
             Matrix W = new Matrix("W.txt");
@@ -92,6 +92,28 @@ namespace image_recognition_Csharp
                 }
             }
 
+        }
+  
+  
+  
+        public static Matrix X = new Matrix("web_demo_X.txt").T;
+        public static Matrix Y = new Matrix("web_demo_Y.txt");
+        public static Matrix Bias = new Matrix("web_demo_Bias.txt");
+        public static double web_demo_Loss_func(Matrix W)
+        {
+            // double loss = ML.Get_Full_SVM_Loss(X,Y,Bias,W);
+            double loss = ML.Get_Full_SVM_Loss_with_Regularization(X,Y,Bias,W,0.1);
+            return loss;
+        }
+        public static void Main()
+        {
+            Matrix W = new Matrix("web_demo_W.txt");
+            double loss = web_demo_Loss_func(W);
+            Matrix grad = ML.Eval_Numerical_Gradient(web_demo_Loss_func,W);
+
+            W = ML.Train_model(web_demo_Loss_func,W);
+            W.Display();
+            double acc = ML.Get_accuracy(X,Y,W);
         }
     }
 }

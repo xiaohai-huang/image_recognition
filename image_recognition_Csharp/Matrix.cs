@@ -19,6 +19,30 @@ namespace image_recognition_Csharp
             get { return data.GetLength(1); }
             private set { Column = value; }
         }
+        
+        /// <summary>
+        /// The transpose of the matrix
+        /// </summary>
+        /// <value>the transposed matrix</value>
+        public Matrix T
+        {
+            // A = Row X Column
+            // A_T = Column X Row 
+            get
+            {
+                Matrix Transpose = new Matrix(this.Column,this.Row);
+                for(int row_index=0;row_index<this.Row;row_index++)
+                {
+                    for(int col_index=0;col_index<this.Column;col_index++)
+                    {
+                        // change the position of row index and col index
+                        Transpose[col_index,row_index] = this[row_index,col_index];
+                    }
+                }
+                return Transpose;
+            }
+        }
+
         /// <summary>
         /// return the size of the matrix as a string
         /// </summary>
@@ -46,6 +70,7 @@ namespace image_recognition_Csharp
             }
 
         }
+        
         /// <summary>
         /// only works for 1 column matrix, get the specific value
         /// </summary>
@@ -56,7 +81,7 @@ namespace image_recognition_Csharp
             {
                 if (this.Column == 1)
                 {
-                return data[row, 0];
+                    return data[row, 0];
                 }
                 else
                 {
@@ -70,7 +95,7 @@ namespace image_recognition_Csharp
                 if (this.Column == 1)
                 {
 
-                data[row, 0] = value;
+                    data[row, 0] = value;
                 }
                 else
                 {
@@ -81,6 +106,14 @@ namespace image_recognition_Csharp
 
         }
 
+        /// <summary>
+        /// Get the matrix as a double[,]
+        /// </summary>
+        /// <returns>a double[,] contains matrix values</returns>
+        public double[,] Get_Data()
+        {
+            return this.data;
+        }
         /// <summary>
         /// construct an empty matrix with specific row and column
         /// </summary>
@@ -649,7 +682,7 @@ namespace image_recognition_Csharp
         }
          
          /// <summary>
-         /// find the index with max score in each column
+         /// find the index with max score in each column and turn into 1 column matrix
          /// </summary>
          /// <param name="matrix">The matrix to be searched</param>
          /// <returns>Return an one column matrix</returns>
@@ -748,9 +781,9 @@ namespace image_recognition_Csharp
             }
             return result;
         }
-        public double[,] Get_Data()
-        {
-            return this.data;
-        }
+
+        
+
+
     }
 }
