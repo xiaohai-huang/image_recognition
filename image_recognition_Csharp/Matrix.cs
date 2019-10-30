@@ -472,7 +472,7 @@ namespace image_recognition_Csharp
             if (row * col != this.Row * this.Column)
             {
                 Console.WriteLine("cannot reshpe this matrix");
-                Console.WriteLine($"Orginal: {this.Row} X {this.Column} ===> Output: {row} X {col}");
+                Console.WriteLine($"Orginal: {this.Row} X {this.Column} != Output: {row} X {col}");
                 return this;
             }
             // create a list to store original matrix values (each cell)
@@ -498,8 +498,6 @@ namespace image_recognition_Csharp
                 }
             }
             return shapped_matrix;
-
-            
         }
 
         /// <summary>
@@ -509,10 +507,15 @@ namespace image_recognition_Csharp
         /// <returns>a reshaped matrix</returns>
         public Matrix Reshape(int col)
         {
+            if( ((this.Row * this.Column) % col)!=0)
+            {
+                // e.g. some reshpre might cause this
+                // {1,2,3,4,5},
+                // {6,7,8,9  } ---- miss one element
+                throw new ArgumentException("The matrix cannot be perfectly reshaped");
+            }
             int row = (this.Row * this.Column) / col;
             return this.Reshape(row, col);
-
-            
         }
 
         
@@ -596,40 +599,7 @@ namespace image_recognition_Csharp
             }
             return new_matrix;
         }
-        /// <summary>
-        /// Concatenate two matries together
-        /// </summary>
-        /// <param name="right">the matrix to be combined</param>
-        /// <returns>return the combined matrix</returns>
-        public Matrix Concatenate(Matrix right)
-        {
-            // check row number
-            if(this.Row!=right.Row)
-            {
-                throw new ArgumentException($"{this.Row}!={right.Row}\n row number has to be the same");
-            }
-            Matrix new_matrix = new  Matrix(this.Row,this.Column+right.Column);
-            // populate the new matrix by using the left matrix
-            for(int row=0;row<this.Row;row++)
-            {
-                for(int col=0;col<this.Column;col++)
-                {
-                    new_matrix[row,col]=this[row,col];
-                }
-            }
 
-            // using the right matrix
-            for(int row=0;row<right.Row;row++)
-            {
-                for(int col=this.Column;col<this.Column+right.Column;col++)
-                {
-                    new_matrix[row,col]=right[row,col-this.Column];
-                }
-            }
-            return new_matrix;
-
-        }
-        
         /// <summary>
         /// Remove a specific column in the matrix
         /// </summary>
@@ -695,6 +665,40 @@ namespace image_recognition_Csharp
             return new_matrix;
         }
         
+        /// <summary>
+        /// Concatenate two matries together,left to right
+        /// </summary>
+        /// <param name="right">the matrix to be combined</param>
+        /// <returns>return the combined matrix</returns>
+        public Matrix Concatenate(Matrix right)
+        {
+            // check row number
+            if(this.Row!=right.Row)
+            {
+                throw new ArgumentException($"{this.Row}!={right.Row}\n row number has to be the same");
+            }
+            Matrix new_matrix = new  Matrix(this.Row,this.Column+right.Column);
+            // populate the new matrix by using the left matrix
+            for(int row=0;row<this.Row;row++)
+            {
+                for(int col=0;col<this.Column;col++)
+                {
+                    new_matrix[row,col]=this[row,col];
+                }
+            }
+
+            // using the right matrix
+            for(int row=0;row<right.Row;row++)
+            {
+                for(int col=this.Column;col<this.Column+right.Column;col++)
+                {
+                    new_matrix[row,col]=right[row,col-this.Column];
+                }
+            }
+            return new_matrix;
+
+        }
+
         
         /// <summary>
         /// Get the max value of the column according to the given index

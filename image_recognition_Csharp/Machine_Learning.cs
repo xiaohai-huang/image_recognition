@@ -188,7 +188,7 @@ namespace image_recognition_Csharp
 
 
         // <summary>
-        /// Calculate the accurate rate, errors/num_of_samples
+        /// Calculate the accurate rate, errors/num_of_samples, using the prediction result directly
         /// </summary>
         /// <param name="Prediction">1 column matrix</param>
         /// <param name="Answer">1 column matrix</param>
@@ -217,12 +217,21 @@ namespace image_recognition_Csharp
             return accurate_rate;
         }
 
+        /// <summary>
+        /// Calculate the accurate rate, errors/num_of_samples
+        /// </summary>
+        /// <param name="X_test"></param>
+        /// <param name="Y_test"></param>
+        /// <param name="W"></param>
+        /// <returns>accurate rate</returns>
         public static double Get_accuracy(Matrix X_test, Matrix Y_test, Matrix W)
         {
             Matrix prediction = Matrix.Get_Max((W*X_test));
             double accurate_rate = Get_accuracy(prediction,Y_test);
             return accurate_rate;
         }
+        
+        
         /// <summary>
         /// calculate numerical graident to do gradient descent, and return the W
         /// </summary>
@@ -231,7 +240,7 @@ namespace image_recognition_Csharp
         /// <param name="write_to_file">save the W as a text file</param>
         /// <param name="fileName">the text file's name</param>
         /// <returns>the matrix W</returns>
-        public static Matrix Train_model(Matrix X_train, Matrix Y_train,double min_loss=1,bool verbose=true, string fileName="")
+        public static Matrix Train_model(Matrix X_train, Matrix Y_train,double step_size=0.001,double min_loss=1,bool verbose=true, string fileName="")
         {
             // row = number of classes, column is number of pixels
             Matrix W = new Matrix(Y_train.Row,X_train.Row).Set_num(0.2);
@@ -245,7 +254,7 @@ namespace image_recognition_Csharp
             {
                 // -----main part of updating
                 Matrix grad=ML.Eval_Numerical_Gradient(X_train,Y_train,Bias,W);
-                W+=-0.001*grad;
+                W+=-step_size*grad;
                 // ------
 
                 // display progress
@@ -271,7 +280,17 @@ namespace image_recognition_Csharp
 
         }
         
-        public static Matrix Train_model(Func<Matrix,double> loss_func,Matrix W,double min_loss=1,bool verbose=true,string fileName="")
+        /// <summary>
+        /// calculate numerical graident to do gradient descent, and return the W by passing loss function
+        /// </summary>
+        /// <param name="loss_func">the loss function</param>
+        /// <param name="W">the W to be updated</param>
+        /// <param name="step_size"></param>
+        /// <param name="min_loss">the loss, stop point</param>
+        /// <param name="verbose">print the process message</param>
+        /// <param name="fileName">save W as a text file</param>
+        /// <returns>the updated W</returns>
+        public static Matrix Train_model(Func<Matrix,double> loss_func,Matrix W,double step_size=0.001,double min_loss=1,bool verbose=true,string fileName="")
         {
             Matrix new_W = W;
             // update W
@@ -280,7 +299,7 @@ namespace image_recognition_Csharp
             {
                 // ------updating part
                 Matrix grad = ML.Eval_Numerical_Gradient(loss_func,new_W);
-                new_W = new_W +(-0.001*grad);
+                new_W = new_W +(-step_size*grad);
                 // -------
 
                 // display progress
