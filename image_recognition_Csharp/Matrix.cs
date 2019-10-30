@@ -629,6 +629,7 @@ namespace image_recognition_Csharp
             return new_matrix;
 
         }
+        
         /// <summary>
         /// Remove a specific column in the matrix
         /// </summary>
@@ -636,35 +637,72 @@ namespace image_recognition_Csharp
         /// <returns>return a new matrix after removing</returns>
         public Matrix Remove_Column(int col_index)
         {
-            Matrix new_matrix;
-            if(col_index!=0)
+            // create an new matrix with one column less
+            Matrix new_matrix=new Matrix(this.Row,this.Column-1);
+
+            for (int row=0;row<this.Row;row++)
             {
-                new_matrix=this.Get_Column(0);
-                
-                // initialize with one column, therefore, col should start with 1
-                for (int col=1;col<this.Column;col++)
+                for(int col=0;col<this.Column;col++)
                 {
-                    if(col!=col_index)
+                    // keep copying unitial reaches the removed column
+                    if(col<col_index)
                     {
-                        new_matrix=new_matrix.Concatenate(this.Get_Column(col));
+                        new_matrix[row,col]=this[row,col];   
                     }
-                }
-            }
-            else
-            {
-                // initialize with one column, therefore, col should start with 2
-                new_matrix=this.Get_Column(1);
-                for (int col=2;col<this.Column;col++)
-                {
-                    
-                    new_matrix=new_matrix.Concatenate(this.Get_Column(col));
-                    
+                    // when reached the removed column, add 1 to the column index
+                    // to skip the column
+                    else
+                    {
+                        try
+                        {
+                        new_matrix[row,col]=this[row,col+1];
+                        }
+                        catch(IndexOutOfRangeException){}
+                    }
                 }
             }
             return new_matrix;
         }
+        
+        public Matrix Remove_Row(int row_index)
+        {
+            // the new matrix with one row less than the previous one
+            Matrix new_matrix = new Matrix(this.Row-1,this.Column);
 
-        private static double Get_one_col_max(Matrix matrix,int col_index)
+            // iterate over the original matrix, 
+            // keep copying untial reaches the column that is going to be removed
+            // when reached the removed column, add 1 to the row index to skip that
+            // finally will cause an exception, use try to handle that.
+            for (int row=0;row<this.Row;row++)
+            {
+                for(int col=0;col<this.Column;col++)
+                {
+                    if(row<row_index)
+                    {
+                        new_matrix[row,col]=this[row,col];
+                    }
+                    
+                    else
+                    {
+                        try
+                        {
+                        new_matrix[row,col]=this[row+1,col];
+                        }
+                        catch(IndexOutOfRangeException){}
+                    }
+                }
+            }
+            return new_matrix;
+        }
+        
+        
+        /// <summary>
+        /// Get the max value of the column according to the given index
+        /// </summary>
+        /// <param name="matrix"></param>
+        /// <param name="col_index"></param>
+        /// <returns>the maximum value of the specific column</returns>
+        public static double Get_one_col_max(Matrix matrix,int col_index)
         {
             double max=0;
             int max_index=0;
