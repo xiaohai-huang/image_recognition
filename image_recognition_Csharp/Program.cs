@@ -1,119 +1,100 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 
 namespace image_recognition_Csharp
 {
     class Program
     {
+       
+
         public static string image_root = @"MRI";
 
-        public static void Train_method()
+        public static void Train()
         {
-            Matrix W = new Matrix(row:2,col:316*256);
-            
-            // get the data and labels
-            string l_img_1 ="IXI536-Guys-1059-T1";
-            string l_img_2 = "IXI539-Guys-1067-T1";
-            string l_img_3 = "IXI050-Guys-0711-T1";
-            string l_img_4 = "IXI051-HH-1328-T1";
-            string l_img_5 = "IXI085-Guys-0759-T1";
-            string l_img_6 = "IXI128-HH-1470-T1";
+            // Matrix test_matrix = new Matrix("web_demo_X.txt");
+            // test_matrix=test_matrix.Remove_Row(1,3);
+            // test_matrix.Display();
+            string train_folder = @"D:\Stanford\image_recognition\image_recognition_Csharp\MRI\Training_set";
+            Dictionary<string,Matrix> training_set = Matrix.Load_Image_Folder_Dict(train_folder);
 
-            string r_img_1="IXI625-Guys-1098-T1";
-            string r_img_2="IXI482-HH-2178-T1";
-
-            double[,] l_img_1_arr = Image.LoadImage($@"{image_root}/{l_img_1}.png");
-            double[,] l_img_2_arr = Image.LoadImage($@"{image_root}/{l_img_2}.png");
-            double[,] l_img_3_arr = Image.LoadImage($@"{image_root}/{l_img_3}.png");
-            double[,] l_img_4_arr = Image.LoadImage($@"{image_root}/{l_img_4}.png");
-            double[,] l_img_5_arr = Image.LoadImage($@"{image_root}/{l_img_5}.png");
-            double[,] l_img_6_arr = Image.LoadImage($@"{image_root}/{l_img_6}.png");
-            
-
-
-            double[,] r_img_1_arr = Image.LoadImage($@"{image_root}/{r_img_1}.png");
-            double[,] r_img_2_arr = Image.LoadImage($@"{image_root}/{r_img_2}.png");
-            
-
-            double[,] Y_train_arr = 
+            // create X matrix, and Y
+            Matrix X = new Matrix(316*256,1);
+            Matrix Y= new Matrix(training_set.Count,1);
+            int index =0;
+            foreach(var name_matrix in training_set)
             {
-                {0},
-                {0},
-                {0},
-                {0},
-                {0},
-                {0},
-                {1},
-                {1},
-            };
-            Matrix Y_train = new Matrix(Y_train_arr);
+                X=X.Concatenate(name_matrix.Value);
+                if(name_matrix.Key.Contains("left"))
+                {
+                    Y[index]=0;
+                }
+                else
+                {Y[index]=1;}
+                index++;
+            }
+            X=X.Remove_Column(0);
 
-            Matrix L_1=  new Matrix(l_img_1_arr).Reshape(1);
-            Matrix L_2 = new Matrix(l_img_2_arr).Reshape(1);
-            Matrix L_3 = new Matrix(l_img_3_arr).Reshape(1);
-            Matrix L_4 = new Matrix(l_img_4_arr).Reshape(1);
-            Matrix L_5 = new Matrix(l_img_5_arr).Reshape(1);
-            Matrix L_6 = new Matrix(l_img_6_arr).Reshape(1);
 
-            Matrix R_1 = new Matrix(r_img_1_arr).Reshape(1);
-            Matrix R_2 = new Matrix(r_img_2_arr).Reshape(1);
+            // train model
+            object[] W_b = ML.LogisticRegression.Train_model(X,Y.T,Save_Path:"test_trainMethod.txt");
+            Console.WriteLine(W_b[1]);
 
-            
 
-            Matrix X_train = L_1;
-            X_train=X_train.Concatenate(L_2).Concatenate(L_3).Concatenate(L_4).Concatenate(L_5).Concatenate(L_6).Concatenate(R_1).Concatenate(R_2);
-            
-            Matrix Bias = new Matrix(row:2,col:1).Set_num(0.5);
-            
-           ML.Train_model(X_train,Y_train);
 
+            // // update
+            // Matrix W = new Matrix(316*256,1).Set_num(0.3);
+            // double b = 2;
+            // double m = X.Column;
+            // double learning_rate = 0.003;
+
+            // for (int i =0; i<10;i++)
+            // {
+            //     Matrix Z = W.T * X + b;
+            //     Matrix A = ML.LogisticRegression.Sigmoid(Z);
+            //     Matrix dZ = A-Y.T;
+            //     Matrix dW = 1/m * X*dZ.T;
+            //     double dB = 1/m * dZ.Sum();
+                
+
+            //     W = W - learning_rate*dW;
+            //     b = b - learning_rate*dB;
+            // }
+
+            // W.SaveMatrix("W_T_logistic.txt");
         }
-        public static void Test_MRI()
+        public static void test()
         {
             // read W from file
-            Matrix W = new Matrix("W.txt");
+            Matrix W = new Matrix("test_trainMethod.txt");
 
             // set up a random bias
-            Matrix Bias = new Matrix(row:2,col:1).Set_num(0.5);
+            double b = 3.9672499999999986;
+            
 
             // key is the file name, value is image's pixel values in matrix
             Dictionary<string,Matrix> MRI_data=Matrix.Load_Image_Folder_Dict(image_root);
-
+            
             // start testing
             foreach(var name_matrix in MRI_data)
             {
-                Matrix score = ML.Get_Scores(name_matrix.Value,W,Bias);
+
+                Matrix Z = W.T*name_matrix.Value+b;
+                Matrix result = ML.LogisticRegression.Sigmoid(Z);
                 
-                // to see wether it is in index 0 or 1
-                Matrix result = Matrix.Get_Max(score);
-                if(result[0]!=0)
+                if(result[0]==1)
                 {
                     Console.WriteLine($"{name_matrix.Key} is unsual");
                 }
             }
 
         }
-  
-  
-  
-        public static Matrix X = new Matrix("web_demo_X.txt").T;
-        public static Matrix Y = new Matrix("web_demo_Y.txt");
-        public static Matrix Bias = new Matrix("web_demo_Bias.txt");
-        public static double web_demo_Loss_func(Matrix W)
-        {
-            // double loss = ML.Get_Full_SVM_Loss(X,Y,Bias,W);
-            double loss = ML.Get_Full_SVM_Loss_with_Regularization(X,Y,Bias,W,0.1);
-            return loss;
-        }
+
         public static void Main()
         {
-            Matrix W = new Matrix("web_demo_W.txt");
-            double loss = web_demo_Loss_func(W);
-            Matrix grad = ML.Eval_Numerical_Gradient(web_demo_Loss_func,W);
-
-            W = ML.Train_model(web_demo_Loss_func,W);
-            W.Display();
-            double acc = ML.Get_accuracy(X,Y,W);
+            test();
         }
+  
+  
     }
 }

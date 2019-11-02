@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 
 
@@ -44,14 +45,21 @@ namespace image_recognition_Csharp
         }
 
         /// <summary>
-        /// return the size of the matrix as a string
+        /// return the shape of the matrix as a 1D int array (for creating new matrix) 
         /// </summary>
         /// <value></value>
+        public int[] Shape
+        {
+            get
+            { 
+                int[] shape = {Row,Column};
+                return shape; 
+            }
+        }
         public string Size
         {
-            get { return $"{this.Row} X {this.Column}"; }
+            get{return $"{this.Row} X {this.Column}";}
         }
-
         //[] overload
         /// <summary>
         /// get the element of the matrix using the given row and col index
@@ -296,8 +304,34 @@ namespace image_recognition_Csharp
             }
             this.data=matrix_arr;
         } 
-    
+
+        /// <summary>
+        /// Construct a matrix using an 1D int array, usually matrix.Shape
+        /// </summary>
+        /// <param name="shape">1D int array</param>
+        public Matrix(int[] shape)
+        {
+            if(shape.Length!=2){throw new Exception("input must be a 1D int[] containing the shape");}
+            int row = shape[0];
+            int col = shape[1];
+            data=new Matrix(row,col).data;
+        }
         
+        public static Matrix Random_Matrix(int row, int col)
+        {
+            Random rng = new Random();
+            Matrix new_matrix = new Matrix(row,col);
+            for(int row_index=0;row_index<new_matrix.Row;row_index++)
+            {
+                for(int col_index=0;col_index<new_matrix.Column;col_index++)
+                {
+                    double random_num = rng.NextDouble()*100;
+                    new_matrix[row_index,col_index] = random_num;
+                }
+            }
+            return new_matrix;
+        }
+
         /// <summary>
         /// matrix dot product
         /// </summary>
@@ -343,6 +377,12 @@ namespace image_recognition_Csharp
 
             return sum;
         }
+        /// <summary>
+        /// Matrix dot product
+        /// </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
         public static Matrix operator *(Matrix left, Matrix right)
         {
             return left.Dot(right);
@@ -364,6 +404,7 @@ namespace image_recognition_Csharp
             }
             return result;
         }
+        
         /// <summary>
         /// element-wise addition
         /// </summary>
@@ -376,8 +417,7 @@ namespace image_recognition_Csharp
             if (this.Size != right_matrix.Size)
             {
                 Console.WriteLine("Cannot add these two matries together");
-                throw new ArgumentException($"Orginal: {this.Size} is not equal to the right matrix: {right_matrix.Size}");
-                
+                throw new ArgumentException($"Orginal: The size of left matrix: {this.Size} is not equal to the right matrix: {right_matrix.Size}");
             }
             else
             {
@@ -394,6 +434,7 @@ namespace image_recognition_Csharp
             return added_matrix;
             
         }
+        
         /// <summary>
         /// element-wise addition
         /// </summary>
@@ -409,13 +450,110 @@ namespace image_recognition_Csharp
         }
 
         /// <summary>
+        /// element-wise addition, make a matrix full of the number then add the new matrix with the corresopnding matrix
+        /// </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
+        public static Matrix operator +(Matrix left, double right)
+        {
+            Matrix right_matrix = new Matrix(left.Shape).Set_num(right);
+            Matrix result = left+right_matrix;
+            return result;
+        }
+        /// <summary>
+        /// element-wise addition, make a matrix full of the number then add the new matrix with the corresopnding matrix
+        /// </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
+        public static Matrix operator +(double left, Matrix right)
+        {
+            // shape has to be the same as the right matrix
+            Matrix left_matrix = new Matrix(right.Shape).Set_num(left);
+            Matrix result = left+left_matrix;
+            return result;
+        }
+
+         
+        /// <summary>
+        /// element-wise substraction
+        /// </summary>
+        /// <param name="right_matrix"></param>
+        /// <returns></returns>
+        public Matrix Substract(Matrix right_matrix)
+        {
+            Matrix substracted_matrix;
+            // check the size
+            if (this.Size != right_matrix.Size)
+            {
+                Console.WriteLine("Cannot substract these two matries");
+                throw new ArgumentException($"Orginal: The size of left matrix: {this.Size} is not equal to the right matrix: {right_matrix.Size}");
+            }
+            else
+            {
+                substracted_matrix = new Matrix(this.Row, this.Column);
+
+                for(int row = 0; row < substracted_matrix.Row; row++)
+                {
+                    for(int col =0; col < substracted_matrix.Column; col++)
+                    {
+                        substracted_matrix[row, col] = this[row, col] - right_matrix[row, col];
+                    }
+                }
+            }
+            return substracted_matrix;
+            
+        }
+        
+        /// <summary>
+        /// element-wise substraction
+        /// </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
+        public static Matrix operator -(Matrix left, Matrix right) 
+        {
+            Matrix result;
+            result = left.Substract(right);
+
+            return result;
+        }
+
+        /// <summary>
+        /// element-wise substraction, make a matrix full of the number then substract the new matrix with the corresopnding matrix
+        /// </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
+        public static Matrix operator -(Matrix left, double right)
+        {
+            Matrix right_matrix = new Matrix(left.Shape).Set_num(right);
+            Matrix result = left-right_matrix;
+            return result;
+        }
+        /// <summary>
+        /// element-wise substraction, make a matrix full of the number then substract the new matrix with the corresopnding matrix
+        /// </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
+        public static Matrix operator -(double left, Matrix right)
+        {
+            // shape has to be the same as the right matrix
+            Matrix left_matrix = new Matrix(right.Shape).Set_num(left);
+            Matrix result = left-left_matrix;
+            return result;
+        }
+
+        /// <summary>
         /// element-wise multiplication
         /// </summary>
         /// <param name="num">the number to be multiplied</param>
         /// <returns>new matrix</returns>
         public Matrix Multiply(double num)
         {
-            Matrix Multiplied_matrix=new Matrix(this.Row,this.Column);
+            Matrix Multiplied_matrix=new Matrix(this.Shape);
 
             for(int row=0; row < this.Row; row++)
             {
@@ -439,6 +577,48 @@ namespace image_recognition_Csharp
             return result;
         }
 
+        
+        /// <summary>
+        /// Element-wise compare each element of the two matries
+        /// </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
+        public static bool Is_Equal(Matrix left, Matrix right)
+        {
+            if(left.Size!=right.Size)
+            {
+                throw new ArgumentException("Two matries are not at the same shape");
+            }
+
+            for(int row=0;row<left.Row;row++)
+            {
+                for(int col=0;col<left.Column;col++)
+                {
+                    if(left[row,col]!=right[row,col])
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+        /// <summary>
+        /// Element-wise compare each element of the two matries
+        /// </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
+        public bool Is_Equal(Matrix right)
+        {
+            if(Matrix.Is_Equal(this,right))
+            {
+                return true;
+            }else
+            {
+                return false;
+            }
+        }
         /// <summary>
         /// set all elements to a specific nummber
         /// </summary>
@@ -446,7 +626,7 @@ namespace image_recognition_Csharp
         /// <returns>a matrix which is full of the number</returns>
         public Matrix Set_num(double num)
         {
-            Matrix new_matrix = new Matrix(this.Row,this.Column);
+            Matrix new_matrix = new Matrix(this.Shape);
             for (int row = 0; row < new_matrix.Row; row++)
             {
                 for(int col = 0; col < new_matrix.Column; col++)
@@ -457,10 +637,6 @@ namespace image_recognition_Csharp
             return new_matrix;
         }
 
-
-        
-
-        
         /// <summary>
         /// reshape the matrix,supply row and column
         /// </summary>
@@ -527,6 +703,7 @@ namespace image_recognition_Csharp
 
             return result;
         }
+        
         /// <summary>
         /// Display the matrix
         /// </summary>
@@ -570,7 +747,6 @@ namespace image_recognition_Csharp
             return text;
         }
 
-        
         /// <summary>
         /// turn the specific column into a new matrix (one column)
         /// </summary>
@@ -585,6 +761,7 @@ namespace image_recognition_Csharp
             }
             return new_matrix;
         }
+        
         /// <summary>
         /// turn the specific row into a new matrix (one row)
         /// </summary>
@@ -607,69 +784,145 @@ namespace image_recognition_Csharp
         /// <returns>return a new matrix after removing</returns>
         public Matrix Remove_Column(int col_index)
         {
-            // create an new matrix with one column less
-            Matrix new_matrix=new Matrix(this.Row,this.Column-1);
+            Matrix result;
 
-            for (int row=0;row<this.Row;row++)
-            {
-                for(int col=0;col<this.Column;col++)
+            if(col_index==0)
+            {   
+                result = new Matrix(this.Row,this.Column-1);
+
+                for(int row=0;row<result.Row;row++)
                 {
-                    // keep copying unitial reaches the removed column
-                    if(col<col_index)
+                    for(int col=0;col<result.Column;col++)
                     {
-                        new_matrix[row,col]=this[row,col];   
-                    }
-                    // when reached the removed column, add 1 to the column index
-                    // to skip the column
-                    else
-                    {
-                        try
-                        {
-                        new_matrix[row,col]=this[row,col+1];
-                        }
-                        catch(IndexOutOfRangeException){}
+                        result[row,col] = this[row,col+1];
                     }
                 }
+                return result;
+            }
+            // deal with col index != 0
+            Matrix left_matrix = new Matrix(this.Row,col_index);
+            Matrix right_matrix = new Matrix(this.Row,this.Column-col_index-1);
+            
+            // populate the left matrix
+            for(int row=0;row<left_matrix.Row;row++)
+            {
+                for(int col=0;col<left_matrix.Column;col++)
+                {
+                    left_matrix[row,col] = this[row,col];
+                }
+            }
+
+            // populate the right matrix
+             for(int row=0;row<right_matrix.Row;row++)
+            {
+                for(int col=0;col<right_matrix.Column;col++)
+                {
+                    right_matrix[row,col] = this[row,col+col_index+1];
+                }
+            }
+
+            // combine left and right
+            result = left_matrix.Concatenate(right_matrix);
+            return result;
+        }
+        
+        /// <summary>
+        /// Remove a range of columns based on the number given
+        /// </summary>
+        /// <param name="col_index">start index</param>
+        /// <param name="num_of_columns">number of columns to be removed</param>
+        /// <returns></returns>
+        public Matrix Remove_Column(int col_index, int num_of_columns)
+        {
+            // new col  = orgiranl col - num_of_cols to be removed
+            Matrix new_matrix=this;
+            int col_removed=0;
+            while (true)
+            {
+                new_matrix=new_matrix.Remove_Column(col_index);
+                col_removed++;
+                if(col_removed==num_of_columns){break;}
             }
             return new_matrix;
         }
         
+        
+        /// <summary>
+        /// Remove a specific row in the matrix
+        /// </summary>
+        /// <param name="row_index">the index of the row to be removed</param>
+        /// <returns>return a new matrix after removing</returns>
         public Matrix Remove_Row(int row_index)
         {
-            // the new matrix with one row less than the previous one
-            Matrix new_matrix = new Matrix(this.Row-1,this.Column);
+            Matrix result;
 
-            // iterate over the original matrix, 
-            // keep copying untial reaches the column that is going to be removed
-            // when reached the removed column, add 1 to the row index to skip that
-            // finally will cause an exception, use try to handle that.
-            for (int row=0;row<this.Row;row++)
+            if(row_index==0)
             {
-                for(int col=0;col<this.Column;col++)
+                result = new Matrix(this.Row-1, this.Column);
+
+                // populate the result
+                for(int row=0;row<result.Row;row++)
                 {
-                    if(row<row_index)
+                    for(int col=0;col<result.Column;col++)
                     {
-                        new_matrix[row,col]=this[row,col];
-                    }
-                    
-                    else
-                    {
-                        try
-                        {
-                        new_matrix[row,col]=this[row+1,col];
-                        }
-                        catch(IndexOutOfRangeException){}
+                        result[row,col] = this[row+1,col];
                     }
                 }
             }
-            return new_matrix;
+            
+            // deal with row_index != 0
+            Matrix top_matrix = new Matrix(row_index,this.Column);
+            Matrix bottom_matrix = new Matrix(this.Row-row_index-1,this.Column);
+
+            // populate the top matrix
+            for(int row=0;row<top_matrix.Row;row++)
+            {
+                for(int col=0;col<top_matrix.Column;col++)
+                {
+                    top_matrix[row,col] = this[row,col];
+                }
+            }
+
+            // populate the right matrix
+            for(int row=0;row<bottom_matrix.Row;row++)
+            {
+                for(int col=0;col<bottom_matrix.Column;col++)
+                {
+                    bottom_matrix[row,col] = this[row+row_index+1,col];
+                }
+            }
+
+            // combine top and bootom
+            result = top_matrix.Bottom_Concatenate(bottom_matrix);
+
+            return result;
+
         }
         
+        /// <summary>
+        /// Remove a range of rows in the matrix
+        /// </summary>
+        /// <param name="row_index">start index</param>
+        /// <param name="num_of_rows">how many rows to be removed</param>
+        /// <returns>return a new matrix after removing</returns>
+        public Matrix Remove_Row(int row_index, int num_of_rows)
+        {
+            // new row  = orgiranl row - num_of_rows to be removed
+            Matrix new_matrix=this;
+            int row_removed=0;
+            while (true)
+            {
+                new_matrix=new_matrix.Remove_Row(row_index);
+                row_removed++;
+                if(row_removed==num_of_rows){break;}
+            }
+            return new_matrix;
+        }
         /// <summary>
         /// Concatenate two matries together,left to right
         /// </summary>
         /// <param name="right">the matrix to be combined</param>
-        /// <returns>return the combined matrix</returns>
+        /// <returns>return the combined matrix, horizontally</returns>
         public Matrix Concatenate(Matrix right)
         {
             // check row number
@@ -699,6 +952,42 @@ namespace image_recognition_Csharp
 
         }
 
+        /// <summary>
+        /// Concatenate the matrix together, top to bottom
+        /// </summary>
+        /// <param name="bottom">the matrix to be concatenated from bottom</param>
+        /// <returns>a taller matrix, vertically</returns>
+        public Matrix Bottom_Concatenate(Matrix bottom)
+        {
+            
+            // check column number
+            if(this.Column!=bottom.Column)
+            {
+                throw new ArgumentException($"{this.Column}!={bottom.Column}\n both column number has to be the same");
+            }
+
+            // there will be some extra rows depends on the bottom matrix's row
+            Matrix new_matrix = new Matrix(this.Row+bottom.Row,this.Column);
+
+            // populate the new matrix by using the up (original) matrix
+            for(int row=0;row<this.Row;row++)
+            {
+                for(int col=0;col<this.Column;col++)
+                {
+                    new_matrix[row,col]=this[row,col];
+                }
+            }
+
+            // populate the extra part with the bottom matrix by iterating over the bottom matrix
+            for(int row=0;row<bottom.Row;row++)
+            {
+                for(int col=0;col<bottom.Column;col++)
+                {
+                    new_matrix[row+this.Row,col]=bottom[row,col];
+                }
+            }
+            return new_matrix;
+        }
         
         /// <summary>
         /// Get the max value of the column according to the given index
@@ -706,7 +995,7 @@ namespace image_recognition_Csharp
         /// <param name="matrix"></param>
         /// <param name="col_index"></param>
         /// <returns>the maximum value of the specific column</returns>
-        public static double Get_one_col_max(Matrix matrix,int col_index)
+        public static double Get_Max(Matrix matrix,int col_index)
         {
             double max=0;
             int max_index=0;
@@ -734,18 +1023,21 @@ namespace image_recognition_Csharp
             // of the parameter
             Matrix max_matrix = new Matrix(row:matrix.Column,col:1);
             
+            // populate the list with the max number of each column
             List<double> max_list = new List<double>(); 
             for(int column_index=0;column_index<matrix.Column;column_index++)
             {
-                max_list.Add(Get_one_col_max(matrix,column_index));
+                max_list.Add(Get_Max(matrix,column_index));
             }
             
+            // populate the new matrix using the list which conatins maximum numbers
             for(int row=0;row<max_list.Count;row++)
             {
                 max_matrix[row]=max_list[row];
             }
             return max_matrix;
         }
+        
         /// <summary>
         /// sample data for jagged array
         /// </summary>
@@ -799,31 +1091,56 @@ namespace image_recognition_Csharp
             System.IO.File.WriteAllText(file_path,text_to_write);
         }
         
+        /// <summary>
+        /// Save the matrix as a text file
+        /// </summary>
+        /// <param name="file_path"></param>
         public void SaveMatrix(string file_path)
         {
-            string text_to_write = this.Return_String();
-            WriteToFile(text_to_write,file_path);
+            //string text_to_write = this.Return_String();
+            //WriteToFile(text_to_write,file_path);
+            using(StreamWriter sr = new StreamWriter(file_path))
+            {
+                for(int row=0;row<this.Row;row++)
+                {
+                    sr.Write("{");
+                    for(int col=0;col<this.Column;col++)
+                    {
+                        if(col==this.Column-1)
+                        {
+                            sr.Write(this[row,col]);
+                        }else{sr.Write(this[row,col]+",");}
+                    }
+                    sr.Write("},");
+                    sr.WriteLine();
+                }
+            }
         }
+        
         /// <summary>
         /// Convert all images from the given folder into a matrix, each column is an image(images have been stretch into columns).Key is file name, value is the matrix
         /// </summary>
         /// <param name="folder">the folder contains images</param>
+        /// <param name="num_of_examples">number of images to load</param>
         /// <returns>a dictionary, Key is file name, value is matrix</returns>
-        public static Dictionary<string,Matrix> Load_Image_Folder_Dict(string folder)
+        public static Dictionary<string,Matrix> Load_Image_Folder_Dict(string folder,int num_of_examples=int.MaxValue)
         {
             // matrix has to be reshapped into 1 column
             Dictionary<string,Matrix> result=new Dictionary<string, Matrix>();
 
             // get all the filenames within the given folder
             string[] fileNames = System.IO.Directory.GetFiles(folder);
+            int num=0;
             foreach(string fileName in fileNames)
             {
+                if(num==num_of_examples){break;}
                 Matrix matrix = new Matrix(Image.LoadImage(fileName)).Reshape(1);
                 result.Add(fileName,matrix);
+                num++;
             }
             return result;
         }
-
+        
         
 
 

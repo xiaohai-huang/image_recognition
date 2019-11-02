@@ -6,8 +6,10 @@ namespace image_recognition_Csharp
     static class ML
     {
  
-
-        // score function
+        
+        public static class SVM
+        {
+            // score function
         /// <summary>
         /// Get the score matrix, only works for one instance
         /// </summary>
@@ -95,7 +97,7 @@ namespace image_recognition_Csharp
             {
                 Matrix example = X_train.Get_Column(example_index);
                 Matrix score = Get_Scores(example,W,Bias);
-                double loss = ML.Get_SVM_Loss(score,(int)Y_train[example_index],delta:1);
+                double loss = Get_SVM_Loss(score,(int)Y_train[example_index],delta:1);
                 total_loss=total_loss+loss;
             }
             double loss_mean = total_loss/num_of_train_examples;
@@ -104,7 +106,7 @@ namespace image_recognition_Csharp
 
         public static double Get_Full_SVM_Loss_with_Regularization(Matrix X_train, Matrix Y_train,Matrix Bias, Matrix W, double L2_strength=0.1)
         {
-            double full_loss = ML.Get_Full_SVM_Loss(X_train,Y_train,Bias,W)+ML.Get_Regularization_Loss(W,L2_strength);
+            double full_loss = Get_Full_SVM_Loss(X_train,Y_train,Bias,W)+Get_Regularization_Loss(W,L2_strength);
             return full_loss;
         }
         
@@ -132,7 +134,7 @@ namespace image_recognition_Csharp
             double h = 0.00001;
             Matrix gradient=new Matrix(W.Row,W.Column);
             gradient = gradient.Set_num(0);
-            double Fx = ML.Get_Full_SVM_Loss(X_train,Y_train,Bias,W);
+            double Fx = Get_Full_SVM_Loss(X_train,Y_train,Bias,W);
             for (int row=0;row<W.Row;row++)
             {
                 for(int col=0;col<W.Column;col++)
@@ -143,7 +145,7 @@ namespace image_recognition_Csharp
                     double old_w = W[row,col];
                     W[row,col]=W[row,col]+h;
 
-                    double Fx_h= ML.Get_Full_SVM_Loss(X_train,Y_train,Bias,W);
+                    double Fx_h= Get_Full_SVM_Loss(X_train,Y_train,Bias,W);
                     
                     gradient[row,col]=(Fx_h-Fx)/h;
 
@@ -161,7 +163,7 @@ namespace image_recognition_Csharp
         public static Matrix Eval_Numerical_Gradient(Func<Matrix,double> loss_func, Matrix W)
         {
             double h = 0.00001;
-            Matrix gradient=new Matrix(W.Row,W.Column);
+            Matrix gradient=new Matrix(W.Shape);
             gradient = gradient.Set_num(0);
 
             double Fx = loss_func(W);
@@ -182,9 +184,6 @@ namespace image_recognition_Csharp
             }
             return gradient;
         }
-
-
-
 
 
         // <summary>
@@ -253,12 +252,12 @@ namespace image_recognition_Csharp
             while(true)
             {
                 // -----main part of updating
-                Matrix grad=ML.Eval_Numerical_Gradient(X_train,Y_train,Bias,W);
+                Matrix grad=Eval_Numerical_Gradient(X_train,Y_train,Bias,W);
                 W+=-step_size*grad;
                 // ------
 
                 // display progress
-                double loss = ML.Get_Full_SVM_Loss(X_train,Y_train,Bias,W);
+                double loss = Get_Full_SVM_Loss(X_train,Y_train,Bias,W);
                 if(verbose==true)
                 {
                     Console.WriteLine($"The current loss is {loss}");
@@ -298,7 +297,7 @@ namespace image_recognition_Csharp
             while(true)
             {
                 // ------updating part
-                Matrix grad = ML.Eval_Numerical_Gradient(loss_func,new_W);
+                Matrix grad = Eval_Numerical_Gradient(loss_func,new_W);
                 new_W = new_W +(-step_size*grad);
                 // -------
 
@@ -326,6 +325,99 @@ namespace image_recognition_Csharp
             return new_W;
         }
     
+        }
+        
+        public static class LogisticRegression
+        {
+            /// <summary>
+            /// Sigmoid function, take Z, return number between 0 - 1
+            /// </summary>
+            /// <param name="Z">W.T * X + b</param>
+            /// <returns>A, 1 row matrix</returns>
+            public static Matrix Sigmoid(Matrix Z)
+            {
+                Matrix A = new Matrix(Z.Shape);
+                for(int row=0;row<Z.Row;row++)
+                {
+                    for(int col=0;col<Z.Column;col++)
+                    {
+                        A[row,col] = 1/(  1-Math.Pow(Math.E,-Z[row,col])  );
+                    }
+                }
+                return A;
+            }
+
+            public static double Loss_Function(double a, double y)
+            {
+                return -(y*Math.Log(a) + (1-y)*Math.Log(1-a) );
+            }
+
+            public static double Cost_Function(Matrix A, Matrix Y)
+            {
+                double m = A.Column;
+                double cost =0;
+                
+                for(int i=0;i<m;i++)
+                {
+                    double a = A[0,i];
+                    double y = Y[0,i];
+                    cost=cost+Loss_Function(a,y);
+                }
+                return cost;
+            }
+
+            /// <summary>
+            /// Train the model and perform gradient descent
+            /// </summary>
+            /// <param name="X">each column is an example(has been stretched into columns)</param>
+            /// <param name="Y">1 row matrix</param>
+            /// <param name="Learning_Rate"></param>
+            /// <param name="Save_Path"></param>
+            /// <returns>an array contains W, and Bias</returns>
+            public static object[] Train_model(Matrix X, Matrix Y,double Learning_Rate=0.003, string Save_Path="")
+            {
+                object[] result = new object[2];
+                // initialize W, vertical vector
+                Matrix W = new Matrix(X.Get_Column(0).Row,1).Set_num(2.0);
+
+                // initialize some variables
+                double m = X.Column; // # of examples
+                double b = 4;        // Bias
+                Matrix Z;
+                Matrix A;
+                Matrix dZ;
+                Matrix dW;
+                double dB;
+
+
+                int times=0;
+                while (true)
+                {
+                    Z = W.T * X + b;
+                    A = ML.LogisticRegression.Sigmoid(Z);
+                    dZ = A-Y;
+                    dW = 1/m * X*dZ.T;
+                    dB = 1/m * dZ.Sum();
+                    
+                    // graident descent
+                    W = W - Learning_Rate*dW;
+                    b = b - Learning_Rate*dB;
+                    
+                    times++;
+                    Console.WriteLine(times);
+                    // terminate if A==Y
+                    if(A.Is_Equal(Y)){break;}
+                }
+                result[0] = W;
+                result[1] = b;
+                if(Save_Path!="")
+                {
+                    W.SaveMatrix(Save_Path);
+                }
+
+                return result;
+            }
+        }
     }
     
 }
