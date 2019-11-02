@@ -9,13 +9,13 @@ namespace image_recognition_Csharp
        
 
         public static string image_root = @"MRI";
-
+        public static string train_folder = @"D:\Stanford\image_recognition\image_recognition_Csharp\MRI\Training_set";
+            
         public static void Train()
         {
             // Matrix test_matrix = new Matrix("web_demo_X.txt");
             // test_matrix=test_matrix.Remove_Row(1,3);
             // test_matrix.Display();
-            string train_folder = @"D:\Stanford\image_recognition\image_recognition_Csharp\MRI\Training_set";
             Dictionary<string,Matrix> training_set = Matrix.Load_Image_Folder_Dict(train_folder);
 
             // create X matrix, and Y
@@ -69,7 +69,7 @@ namespace image_recognition_Csharp
             Matrix W = new Matrix("test_trainMethod.txt");
 
             // set up a random bias
-            double b = 3.9672499999999986;
+            double b = -0.00825;
             
 
             // key is the file name, value is image's pixel values in matrix
@@ -92,9 +92,32 @@ namespace image_recognition_Csharp
 
         public static void Main()
         {
-            test();
+           double[,] w_arr = 
+           {
+               {1},
+               {2},
+           };
+           double[,] b_arr =
+           {
+               {2}
+           };
+           double[,] x_arr = 
+           {
+               {1,2,-1},
+               {3,4,-3.2},
+           };
+           double[,] y_arr =
+           {
+               {1,0,1}
+           };
+           Matrix w= new Matrix(w_arr);
+           Matrix b = new Matrix(b_arr);
+           Matrix X = new Matrix(x_arr);
+           Matrix Y = new Matrix(y_arr);
+
+           Dictionary<string,Matrix> grads= (Dictionary<string,Matrix>)ML.LogisticRegression.Propagate(w,b,X,Y)[0];
+            Matrix cost = (Matrix)ML.LogisticRegression.Propagate(w,b,X,Y)[1];
+
         }
-  
-  
     }
 }

@@ -377,6 +377,7 @@ namespace image_recognition_Csharp
 
             return sum;
         }
+        
         /// <summary>
         /// Matrix dot product
         /// </summary>
@@ -385,21 +386,22 @@ namespace image_recognition_Csharp
         /// <returns></returns>
         public static Matrix operator *(Matrix left, Matrix right)
         {
+           
             return left.Dot(right);
         }
 
         /// <summary>
-        /// return the sum of the whole matrix
+        /// return the sum of the whole matrix as a 1 x 1 matrix
         /// </summary>
-        /// <returns></returns>
-        public double Sum()
+        /// <returns>1 X 1 Matrix</returns>
+        public static Matrix Sum(Matrix matrix)
         {
-            double result=0;
-            for (int row = 0; row < this.Row; row++)
+            Matrix result=new Matrix(1,1);
+            for (int row = 0; row < matrix.Row; row++)
             {
-                for(int col = 0; col < this.Column; col++)
+                for(int col = 0; col < matrix.Column; col++)
                 {
-                    result = result + this[row, col];
+                    result[0,0] = result[0,0] + matrix[row, col];
                 }
             }
             return result;
@@ -471,7 +473,7 @@ namespace image_recognition_Csharp
         {
             // shape has to be the same as the right matrix
             Matrix left_matrix = new Matrix(right.Shape).Set_num(left);
-            Matrix result = left+left_matrix;
+            Matrix result = left_matrix+right;
             return result;
         }
 
@@ -542,7 +544,7 @@ namespace image_recognition_Csharp
         {
             // shape has to be the same as the right matrix
             Matrix left_matrix = new Matrix(right.Shape).Set_num(left);
-            Matrix result = left-left_matrix;
+            Matrix result = left_matrix-right;
             return result;
         }
 
@@ -564,12 +566,43 @@ namespace image_recognition_Csharp
             }
             return Multiplied_matrix;
         }
+
+        public Matrix Multiply(Matrix right)
+        {
+
+            if(this.Size!=right.Size)
+            {
+                throw new ArgumentException("Perform element wise multiplication between two matries,"
+                +" their size has to be the same");
+            }
+            Matrix result = new Matrix(right.Shape);
+            for(int row=0;row<right.Row;row++)
+            {
+                for(int col=0;col<right.Column;col++)
+                {
+                    result[row,col] = this[row,col]*right[row,col];
+                }
+            }
+            return result;
+        }
+        /// <summary>
+        /// element-wise multiplication
+        /// </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
         public static Matrix operator *(Matrix left, double right)
         {
             Matrix result;
             result = left.Multiply(right);
             return result;
         }
+        /// <summary>
+        /// element-wise multiplication
+        /// </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
         public static Matrix operator *(double left, Matrix right)
         {
             Matrix result;
@@ -577,7 +610,87 @@ namespace image_recognition_Csharp
             return result;
         }
 
-        
+        /// <summary>
+        /// element wise division
+        /// </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
+        public static Matrix operator /(Matrix left,double right)
+        {
+            Matrix result = new Matrix(left.Shape);
+            Matrix right_matrix = new Matrix(left.Shape).Set_num(right);
+
+            for(int row=0;row<left.Row;row++)
+            {
+                for(int col=0;col<left.Column;col++)
+                {
+                    result[row,col] = left[row,col]/right_matrix[row,col];
+                }
+            }
+            return result;
+        }
+        /// <summary>
+        /// element wise division
+        /// </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
+        public static Matrix operator/(double left, Matrix right)
+        {
+            Matrix result = new Matrix(right.Shape);
+            Matrix left_matrix = new Matrix(right.Shape).Set_num(left);
+
+            for(int row=0;row<right.Row;row++)
+            {
+                for(int col=0;col<right.Column;col++)
+                {
+                    result[row,col] = left_matrix[row,col]/right[row,col];
+                }
+            }
+            return result;
+        }
+        /// <summary>
+        /// element-wise Exp
+        /// </summary>
+        /// <param name="matrix"></param>
+        /// <returns></returns>
+        public static Matrix Exp(Matrix matrix)
+        {
+            Matrix new_matrix = new Matrix(matrix.Shape);
+
+            for(int row=0;row<matrix.Row;row++)
+            {
+                for(int col=0;col<matrix.Column;col++)
+                {
+                    new_matrix[row,col] = Math.Exp(matrix[row,col]);
+                }
+            }
+            return new_matrix;
+        }
+
+        /// <summary>
+        /// element-wise log
+        /// </summary>
+        /// <param name="matrix"></param>
+        /// <returns></returns>
+        public static Matrix Log(Matrix matrix)
+        {
+            
+            Matrix new_matrix = new Matrix(matrix.Shape);
+
+            for(int row=0;row<matrix.Row;row++)
+            {
+                for(int col=0;col<matrix.Column;col++)
+                {
+                    new_matrix[row,col] = Math.Log(matrix[row,col]);
+                }
+            }
+            return new_matrix;
+            
+        }
+
+
         /// <summary>
         /// Element-wise compare each element of the two matries
         /// </summary>

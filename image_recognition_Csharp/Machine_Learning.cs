@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Collections.Generic;
 
 
 namespace image_recognition_Csharp
@@ -333,17 +335,20 @@ namespace image_recognition_Csharp
             /// Sigmoid function, take Z, return number between 0 - 1
             /// </summary>
             /// <param name="Z">W.T * X + b</param>
-            /// <returns>A, 1 row matrix</returns>
+            /// <returns>A, size is depended on the Z</returns>
             public static Matrix Sigmoid(Matrix Z)
             {
+                // Matrix A = new Matrix(Z.Shape);
+                // for(int row=0;row<Z.Row;row++)
+                // {
+                //     for(int col=0;col<Z.Column;col++)
+                //     {
+                //         A[row,col] = 1/(  1+Math.Pow(Math.E,-Z[row,col])  );
+                //     }
+                // }
+
                 Matrix A = new Matrix(Z.Shape);
-                for(int row=0;row<Z.Row;row++)
-                {
-                    for(int col=0;col<Z.Column;col++)
-                    {
-                        A[row,col] = 1/(  1-Math.Pow(Math.E,-Z[row,col])  );
-                    }
-                }
+                A = 1/(1+Matrix.Exp(-1*Z));
                 return A;
             }
 
@@ -378,16 +383,16 @@ namespace image_recognition_Csharp
             {
                 object[] result = new object[2];
                 // initialize W, vertical vector
-                Matrix W = new Matrix(X.Get_Column(0).Row,1).Set_num(2.0);
+                Matrix W = Matrix.Random_Matrix(X.Get_Column(0).Row,1)*0.01;
 
                 // initialize some variables
                 double m = X.Column; // # of examples
-                double b = 4;        // Bias
+                Matrix b = new Matrix(1,1);        // Bias
                 Matrix Z;
                 Matrix A;
                 Matrix dZ;
                 Matrix dW;
-                double dB;
+                Matrix dB;
 
 
                 int times=0;
@@ -397,7 +402,7 @@ namespace image_recognition_Csharp
                     A = ML.LogisticRegression.Sigmoid(Z);
                     dZ = A-Y;
                     dW = 1/m * X*dZ.T;
-                    dB = 1/m * dZ.Sum();
+                    dB = 1/m * Matrix.Sum(dZ);
                     
                     // graident descent
                     W = W - Learning_Rate*dW;
@@ -414,6 +419,45 @@ namespace image_recognition_Csharp
                 {
                     W.SaveMatrix(Save_Path);
                 }
+
+                return result;
+            }
+        
+            public static object[] Propagate(Matrix w, Matrix b, Matrix X, Matrix Y)
+            {
+                /*
+                Arguments:
+                w -- weights, a numpy array of size (num_px * num_px * 3, 1)
+                b -- bias, a scalar
+                X -- data of size (num_px * num_px * 3, number of examples)
+                Y -- true "label" vector (containing 0 if non-cat, 1 if cat) of size (1, number of examples)
+
+                Return:
+                cost -- negative log-likelihood cost for logistic regression
+                dw -- gradient of the loss with respect to w, thus same shape as w
+                db -- gradient of the loss with respect to b, thus same shape as b
+                */
+                // if b is just a number
+                b = new Matrix(w.T.Row,X.Column).Set_num(b[0,0]);
+                double m = X.Shape[1]; // # examples
+                // FORWARD PROPAGATION (FROM X TO COST)
+                Matrix A = Sigmoid(w.T*X+b);    // compute activation
+                Matrix cost = -1/m * Matrix.Sum(Y.Multiply(Matrix.Log(A))+(1 - Y).Multiply( Matrix.Log(1 - A)) ); //compute cost
+
+                // BACKWARD PROPAGATION (TO FIND GRAD)
+                Matrix dz = (1/m)*(A - Y);
+                Matrix dw = X * dz.T;
+                Matrix db = Matrix.Sum(dz);
+
+                Debug.Assert(dw.Size == w.Size);
+                
+                Dictionary<string,Matrix> grads = new Dictionary<string, Matrix>();
+                grads.Add("dw",dw);
+                grads.Add("db",db);
+                
+                object[] result = new object[2];
+                result[0] = grads;
+                result[1] = cost;
 
                 return result;
             }
