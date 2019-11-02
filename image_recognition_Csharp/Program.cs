@@ -89,35 +89,6 @@ namespace image_recognition_Csharp
             }
 
         }
-
-        public static void Main()
-        {
-           double[,] w_arr = 
-           {
-               {1},
-               {2},
-           };
-           double[,] b_arr =
-           {
-               {2}
-           };
-           double[,] x_arr = 
-           {
-               {1,2,-1},
-               {3,4,-3.2},
-           };
-           double[,] y_arr =
-           {
-               {1,0,1}
-           };
-           Matrix w= new Matrix(w_arr);
-           Matrix b = new Matrix(b_arr);
-           Matrix X = new Matrix(x_arr);
-           Matrix Y = new Matrix(y_arr);
-
-           Dictionary<string,Matrix> grads= (Dictionary<string,Matrix>)ML.LogisticRegression.Propagate(w,b,X,Y)[0];
-            Matrix cost = (Matrix)ML.LogisticRegression.Propagate(w,b,X,Y)[1];
-
-        }
+    
     }
 }

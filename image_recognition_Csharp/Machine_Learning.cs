@@ -422,7 +422,15 @@ namespace image_recognition_Csharp
 
                 return result;
             }
-        
+
+            /// <summary>
+            /// Implement the cost function and its gradient for the propagation
+            /// </summary>
+            /// <param name="w">weights, shape (Nx,1)</param>
+            /// <param name="b">bias, a scalar</param>
+            /// <param name="X">data, shape(Nx, number of examples)</param>
+            /// <param name="Y">"label" vector, shape (1, number of examples)</param>
+            /// <returns>1D array,[0]grads-{dict}-"dw","db". [1]cost-{matrix}</returns>
             public static object[] Propagate(Matrix w, Matrix b, Matrix X, Matrix Y)
             {
                 /*
@@ -460,6 +468,144 @@ namespace image_recognition_Csharp
                 result[1] = cost;
 
                 return result;
+            }
+
+            /// <summary>
+            /// This function optimizes w and b by running a gradient descent algorithm,[0]params-{dict} containing w and b. [1]grads-{matrix}. [2]costs-{list}
+            /// </summary>
+            /// <param name="w">weights, 1 column Matrix</param>
+            /// <param name="b">bias, a scalar</param>
+            /// <param name="X">data, shape(Nx, number of examples)</param>
+            /// <param name="Y">"label" vector, shape(1, number of examples)</param>
+            /// <param name="num_iterations">number of iterations of the optimization loop</param>
+            /// <param name="learning_rate">learning rate of the gradient descent update rule</param>
+            /// <param name="print_cost">True to print the loss </param>
+            /// <returns>[0]params-{dict} containing w and b. [1]grads-{matrix}. [2]costs-{list}</returns>
+            public static object[] Optimize(
+                Matrix w, Matrix b,Matrix X, Matrix Y,
+                int num_iterations,double learning_rate,
+                bool print_cost= false)
+            {
+                /*
+                Returns:
+                params -- dictionary containing the weights w and bias b
+                grads -- dictionary containing the gradients of the weights and bias with respect to the cost function
+                costs -- list of all the costs computed during the optimization, this will be used to plot the learning curve.
+                */
+
+                List<double> costs = new List<double>();
+
+                Matrix db=new Matrix(1,1);
+                Matrix dw=new Matrix(1,1);
+                Dictionary<string,Matrix> grads= new Dictionary<string, Matrix>();
+                for(int i =0; i<num_iterations;i++)
+                {
+                    // Cost and gradient calculation
+                    Matrix cost = (Matrix)Propagate(w,b,X,Y)[1];
+                    grads = (Dictionary<string,Matrix>)Propagate(w,b,X,Y)[0];
+                    
+                    // Retrieve derivatives from grads
+                    dw = grads["dw"];
+                    db = grads["db"];
+
+                    // Update rule
+                    w = w - (learning_rate*dw);
+                    b = b - (learning_rate*db);
+
+                    // Record the cost
+                    costs.Add(cost[0]);
+
+                    // Print the cost
+                    if(print_cost==true)
+                    {
+                        Console.WriteLine($"Cost after iteration {i}: {cost[0]} ");
+                    }
+                }
+
+                Dictionary<string,Matrix> Params = new Dictionary<string,Matrix>();
+                Params["w"]=w;
+                Params["b"]=b;
+
+                grads["dw"]=dw;
+                grads["db"]=db;
+
+                object[] result = new object[3];
+                result[0] = Params;
+                result[1] = grads;
+                result[2] = costs;
+                return result;
+            }
+
+            /// <summary>
+            /// Predict whether the label is 0 or 1 using learned logistic regression parameters (w, b). (1 row vector) containing all predictions
+            /// </summary>
+            /// <param name="w">weights, 1 column Matrix</param>
+            /// <param name="b">bias, a scalar</param>
+            /// <param name="X">data, shape(Nx, number of examples)</param>
+            /// <returns>(1 row vector) containing all predictions (0/1) for the examples in X</returns>
+            public static Matrix Predict(Matrix w, Matrix b, Matrix X)
+            {
+                
+                // Compute vector "A" predicting the probabilities of a cat being present in the picture
+                Matrix A = Sigmoid(w.T*X+b);
+                
+                // Convert the entries of a into 0 (if activation <= 0.5) or 1 (if activation > 0.5),
+                // stores horizontally the predictions in a vector (1, m) Y_prediction. 
+                Matrix Y_prediction = new Matrix(A.Shape);
+                for(int i =0; i<A.Column;i++)
+                {
+                    if(A[0,i]<=0.5)
+                    {
+                        Y_prediction[0,i] = 0;
+                    }
+                    else
+                    {
+                        Y_prediction[0,i] = 1;
+                    }
+                }
+
+                return Y_prediction;
+
+            }
+        
+            public static Dictionary<string,object> Model(
+                Matrix X_train, Matrix Y_train,Matrix X_test, Matrix Y_test,
+                int num_iterations = 2000,double learning_rate = 0.5,
+                bool print_cost = false)
+            {
+                //  initialize parameters with zeros
+                Matrix w = new Matrix(X_train.Shape[0],1);
+                Matrix b = new Matrix(X_train.Shape[0],1);
+
+                // Gradient descent
+                object[] gradient_results = ML.LogisticRegression.Optimize(w,b,X_train,Y_train,num_iterations,learning_rate);
+                Dictionary<string,Matrix> parameters = (Dictionary<string,Matrix>)gradient_results[0];
+                Matrix grads = (Matrix)gradient_results[1];
+                List<double> costs = (List<double>)gradient_results[2];
+
+                // Retrieve parameters w and b from dictionary "parameters"
+                w = parameters["w"];
+                b = parameters["b"];
+
+                // Predict test/train set examples
+                Matrix Y_Prediction_test = ML.LogisticRegression.Predict(w,b,X_test);
+                Matrix Y_Prediction_train = ML.LogisticRegression.Predict(w,b,X_train);
+
+                // Print train/test Errors
+                // (100 - np.mean(np.abs(Y_prediction_train - Y_train)) * 100)
+                Console.WriteLine("train accuracy: {0} %",(100 - Matrix.Mean(Matrix.Abs(Y_Prediction_train - Y_train)) * 100));
+                Console.WriteLine("test accuracy: {0} %",(100 - Matrix.Mean(Matrix.Abs(Y_Prediction_test - Y_test)) * 100));
+
+                Dictionary<string,object> d = new Dictionary<string, object>();
+                d.Add("costs",costs);
+                d.Add("Y_Prediction_test",Y_Prediction_test);
+                d.Add("Y_Prediction_train",Y_Prediction_train);
+                d.Add("w",w);
+                d.Add("b",b);
+                d.Add("learning_rate",learning_rate);
+                d.Add("num_iterations",num_iterations);
+                
+                return d;
             }
         }
     }

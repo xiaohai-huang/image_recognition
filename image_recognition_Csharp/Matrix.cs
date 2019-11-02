@@ -407,6 +407,34 @@ namespace image_recognition_Csharp
             return result;
         }
         
+        public static Matrix Abs(Matrix matrix)
+        {
+            Matrix result = new Matrix(matrix.Shape);
+            for(int row=0;row<matrix.Row;row++)
+            {
+                for(int col=0;col<matrix.Column;col++)
+                {
+                    result[row,col] = Math.Abs(matrix[row,col]);
+                }
+            }
+            return result;
+        }
+
+        public static double Mean(Matrix matrix)
+        {
+            double sum=0;
+            double n = matrix.Row * matrix.Column;
+            double mean;
+            for(int row=0;row<matrix.Row;row++)
+            {
+                for(int col=0;col<matrix.Column;col++)
+                {
+                    sum= sum+matrix[row,col];
+                }
+            }
+            mean=sum/n;
+            return mean;
+        }
         /// <summary>
         /// element-wise addition
         /// </summary>
@@ -445,6 +473,11 @@ namespace image_recognition_Csharp
         /// <returns></returns>
         public static Matrix operator +(Matrix left, Matrix right) 
         {
+            // for 1 x 1 matrix, expand the matrix
+            if(right.Size=="1 X 1")
+            {
+                right = new Matrix(left.Shape).Set_num(right[0]);
+            }
             Matrix result;
             result = left.Add(right);
 
