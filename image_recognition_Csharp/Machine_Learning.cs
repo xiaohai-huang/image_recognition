@@ -7,8 +7,6 @@ namespace image_recognition_Csharp
 {
     static class ML
     {
- 
-        
         public static class SVM
         {
             // score function
@@ -352,82 +350,11 @@ namespace image_recognition_Csharp
                 return A;
             }
 
-            public static double Loss_Function(double a, double y)
-            {
-                return -(y*Math.Log(a) + (1-y)*Math.Log(1-a) );
-            }
-
-            public static double Cost_Function(Matrix A, Matrix Y)
-            {
-                double m = A.Column;
-                double cost =0;
-                
-                for(int i=0;i<m;i++)
-                {
-                    double a = A[0,i];
-                    double y = Y[0,i];
-                    cost=cost+Loss_Function(a,y);
-                }
-                return cost;
-            }
-
             /// <summary>
-            /// Train the model and perform gradient descent
-            /// </summary>
-            /// <param name="X">each column is an example(has been stretched into columns)</param>
-            /// <param name="Y">1 row matrix</param>
-            /// <param name="Learning_Rate"></param>
-            /// <param name="Save_Path"></param>
-            /// <returns>an array contains W, and Bias</returns>
-            public static object[] Train_model(Matrix X, Matrix Y,double Learning_Rate=0.003, string Save_Path="")
-            {
-                object[] result = new object[2];
-                // initialize W, vertical vector
-                Matrix W = Matrix.Random_Matrix(X.Get_Column(0).Row,1)*0.01;
-
-                // initialize some variables
-                double m = X.Column; // # of examples
-                Matrix b = new Matrix(1,1);        // Bias
-                Matrix Z;
-                Matrix A;
-                Matrix dZ;
-                Matrix dW;
-                Matrix dB;
-
-
-                int times=0;
-                while (true)
-                {
-                    Z = W.T * X + b;
-                    A = ML.LogisticRegression.Sigmoid(Z);
-                    dZ = A-Y;
-                    dW = 1/m * X*dZ.T;
-                    dB = 1/m * Matrix.Sum(dZ);
-                    
-                    // graident descent
-                    W = W - Learning_Rate*dW;
-                    b = b - Learning_Rate*dB;
-                    
-                    times++;
-                    Console.WriteLine(times);
-                    // terminate if A==Y
-                    if(A.Is_Equal(Y)){break;}
-                }
-                result[0] = W;
-                result[1] = b;
-                if(Save_Path!="")
-                {
-                    W.SaveMatrix(Save_Path);
-                }
-
-                return result;
-            }
-
-            /// <summary>
-            /// Implement the cost function and its gradient for the propagation
+            /// Implement the cost function and its gradient for the propagation.[0]grads-{dict}-"dw","db". [1]cost-{matrix}
             /// </summary>
             /// <param name="w">weights, shape (Nx,1)</param>
-            /// <param name="b">bias, a scalar</param>
+            /// <param name="b">bias, a scalar, shape(1, #examples)</param>
             /// <param name="X">data, shape(Nx, number of examples)</param>
             /// <param name="Y">"label" vector, shape (1, number of examples)</param>
             /// <returns>1D array,[0]grads-{dict}-"dw","db". [1]cost-{matrix}</returns>
@@ -446,11 +373,12 @@ namespace image_recognition_Csharp
                 db -- gradient of the loss with respect to b, thus same shape as b
                 */
                 // if b is just a number
-                b = new Matrix(w.T.Row,X.Column).Set_num(b[0,0]);
+                // b = new Matrix(w.T.Row,X.Column).Set_num(b[0,0]);
+
                 double m = X.Shape[1]; // # examples
                 // FORWARD PROPAGATION (FROM X TO COST)
                 Matrix A = Sigmoid(w.T*X+b);    // compute activation
-                Matrix cost = -1/m * Matrix.Sum(Y.Multiply(Matrix.Log(A))+(1 - Y).Multiply( Matrix.Log(1 - A)) ); //compute cost
+                Matrix cost = -1/m * Matrix.Sum(Y.Multiply(Matrix.Log(A)) + (1 - Y).Multiply( Matrix.Log(1 - A)) ); //compute cost
 
                 // BACKWARD PROPAGATION (TO FIND GRAD)
                 Matrix dz = (1/m)*(A - Y);
@@ -474,13 +402,13 @@ namespace image_recognition_Csharp
             /// This function optimizes w and b by running a gradient descent algorithm,[0]params-{dict} containing w and b. [1]grads-{matrix}. [2]costs-{list}
             /// </summary>
             /// <param name="w">weights, 1 column Matrix</param>
-            /// <param name="b">bias, a scalar</param>
+            /// <param name="b">bias, a scalar, shape(1, number of examples) same as W.T*X</param>
             /// <param name="X">data, shape(Nx, number of examples)</param>
             /// <param name="Y">"label" vector, shape(1, number of examples)</param>
             /// <param name="num_iterations">number of iterations of the optimization loop</param>
             /// <param name="learning_rate">learning rate of the gradient descent update rule</param>
             /// <param name="print_cost">True to print the loss </param>
-            /// <returns>[0]params-{dict} containing w and b. [1]grads-{matrix}. [2]costs-{list}</returns>
+            /// <returns>[0]params-{dict} containing w and b. [1]grads-{dict}. [2]costs-{list}</returns>
             public static object[] Optimize(
                 Matrix w, Matrix b,Matrix X, Matrix Y,
                 int num_iterations,double learning_rate,
@@ -493,16 +421,18 @@ namespace image_recognition_Csharp
                 costs -- list of all the costs computed during the optimization, this will be used to plot the learning curve.
                 */
 
+                // initialzie variables
                 List<double> costs = new List<double>();
-
                 Matrix db=new Matrix(1,1);
                 Matrix dw=new Matrix(1,1);
                 Dictionary<string,Matrix> grads= new Dictionary<string, Matrix>();
+
                 for(int i =0; i<num_iterations;i++)
                 {
                     // Cost and gradient calculation
-                    Matrix cost = (Matrix)Propagate(w,b,X,Y)[1];
-                    grads = (Dictionary<string,Matrix>)Propagate(w,b,X,Y)[0];
+                    object[] propagation_results = Propagate(w,b,X,Y);
+                    Matrix cost = (Matrix)propagation_results[1];
+                    grads = (Dictionary<string,Matrix>)propagation_results[0];
                     
                     // Retrieve derivatives from grads
                     dw = grads["dw"];
@@ -547,6 +477,9 @@ namespace image_recognition_Csharp
             {
                 
                 // Compute vector "A" predicting the probabilities of a cat being present in the picture
+                // if b is just a number
+                // b = new Matrix(w.T.Row,X.Column).Set_num(b[0,0]);
+                
                 Matrix A = Sigmoid(w.T*X+b);
                 
                 // Convert the entries of a into 0 (if activation <= 0.5) or 1 (if activation > 0.5),
@@ -567,7 +500,18 @@ namespace image_recognition_Csharp
                 return Y_prediction;
 
             }
-        
+
+            /// <summary>
+            /// Final model
+            /// </summary>
+            /// <param name="X_train">data, shape(Nx, number of examples)</param>
+            /// <param name="Y_train">"label" vector, shape(1, number of examples)</param>
+            /// <param name="X_test">data, shape(Nx, number of examples)</param>
+            /// <param name="Y_test">"label" vector, shape(1, number of examples)</param>
+            /// <param name="num_iterations">number of iterations of the optimization loop</param>
+            /// <param name="learning_rate">learning rate of the gradient descent update rule</param>
+            /// <param name="print_cost">True to print the loss</param>
+            /// <returns>A dictionary containing w,b,costs,(and the input parameters)</returns>
             public static Dictionary<string,object> Model(
                 Matrix X_train, Matrix Y_train,Matrix X_test, Matrix Y_test,
                 int num_iterations = 2000,double learning_rate = 0.5,
@@ -575,12 +519,13 @@ namespace image_recognition_Csharp
             {
                 //  initialize parameters with zeros
                 Matrix w = new Matrix(X_train.Shape[0],1);
-                Matrix b = new Matrix(X_train.Shape[0],1);
+                // the shape of b is the same as A, the column num is #examples
+                Matrix b = new Matrix(1,X_train.Shape[1]); 
 
                 // Gradient descent
-                object[] gradient_results = ML.LogisticRegression.Optimize(w,b,X_train,Y_train,num_iterations,learning_rate);
+                object[] gradient_results = ML.LogisticRegression.Optimize(w,b,X_train,Y_train,num_iterations,learning_rate,print_cost);
                 Dictionary<string,Matrix> parameters = (Dictionary<string,Matrix>)gradient_results[0];
-                Matrix grads = (Matrix)gradient_results[1];
+                Dictionary<string,Matrix> grads = (Dictionary<string,Matrix>)gradient_results[1];
                 List<double> costs = (List<double>)gradient_results[2];
 
                 // Retrieve parameters w and b from dictionary "parameters"

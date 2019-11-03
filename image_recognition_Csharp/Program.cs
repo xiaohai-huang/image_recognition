@@ -36,9 +36,9 @@ namespace image_recognition_Csharp
             X=X.Remove_Column(0);
 
 
-            // train model
-            object[] W_b = ML.LogisticRegression.Train_model(X,Y.T,Save_Path:"test_trainMethod.txt");
-            Console.WriteLine(W_b[1]);
+            // // train model
+            // object[] W_b = ML.LogisticRegression.Train_model(X,Y.T,Save_Path:"test_trainMethod.txt");
+            // Console.WriteLine(W_b[1]);
 
 
 
@@ -69,7 +69,7 @@ namespace image_recognition_Csharp
             Matrix W = new Matrix("test_trainMethod.txt");
 
             // set up a random bias
-            double b = -0.00825;
+            double b = -0.05;
             
 
             // key is the file name, value is image's pixel values in matrix
@@ -89,6 +89,39 @@ namespace image_recognition_Csharp
             }
 
         }
-    
+
+        public static void Main()
+        {
+            // get X, Y data
+            // Y has to be a 1-row matrix
+            // X has to be stack into columns
+            Dictionary<string,Matrix> training_set = Matrix.Load_Image_Folder_Dict(train_folder);
+
+            // create X matrix, and Y
+            Matrix X_train = new Matrix(316*256,1);
+            Matrix Y_train= new Matrix(training_set.Count,1);
+            int index =0;
+            foreach(var name_matrix in training_set)
+            {
+                X_train=X_train.Concatenate(name_matrix.Value);
+                if(name_matrix.Key.Contains("left"))
+                {
+                    Y_train[index]=0;
+                }
+                else
+                {Y_train[index]=1;}
+                index++;
+            }
+            X_train=X_train.Remove_Column(0);
+            Y_train=Y_train.Reshape(1,Y_train.Row);
+            
+            Dictionary<string,object> results = ML.LogisticRegression.Model(
+                X_train,Y_train,X_train,Y_train,print_cost:true,
+                num_iterations:30);
+            
+            Matrix W = (Matrix)results["w"];
+            W.SaveMatrix("test_trainMethod.txt");
+            test();
+        }
     }
 }

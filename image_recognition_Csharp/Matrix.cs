@@ -8,17 +8,15 @@ namespace image_recognition_Csharp
     class Matrix
     {
         // class fields
-        public double[,] data;
-        
+        private double[,] data;
+       
         public int Row
         {
             get { return data.GetLength(0); }
-            private set { Row = value; }
         }
         public int Column
         {
             get { return data.GetLength(1); }
-            private set { Column = value; }
         }
         
         /// <summary>
@@ -45,7 +43,7 @@ namespace image_recognition_Csharp
         }
 
         /// <summary>
-        /// return the shape of the matrix as a 1D int array (for creating new matrix) 
+        /// return the shape of the matrix as a 1D int array[row,col] (for creating new matrix) 
         /// </summary>
         /// <value></value>
         public int[] Shape
@@ -56,10 +54,15 @@ namespace image_recognition_Csharp
                 return shape; 
             }
         }
+        /// <summary>
+        /// Return the size of the matrix as a string. e.g. "5 X 3"
+        /// </summary>
+        /// <value></value>
         public string Size
         {
             get{return $"{this.Row} X {this.Column}";}
         }
+
         //[] overload
         /// <summary>
         /// get the element of the matrix using the given row and col index
@@ -122,6 +125,7 @@ namespace image_recognition_Csharp
         {
             return this.data;
         }
+        
         /// <summary>
         /// construct an empty matrix with specific row and column
         /// </summary>
@@ -131,6 +135,7 @@ namespace image_recognition_Csharp
         {
             data = new double[row, col];
         }
+        
         /// <summary>
         /// construct a matrix using 2D array
         /// </summary>
@@ -139,6 +144,7 @@ namespace image_recognition_Csharp
         {
             data=input;
         }
+        
         /// <summary>
         /// construct a matrix using jagged array, and concatenate them like stretch images
         /// </summary>
@@ -308,7 +314,7 @@ namespace image_recognition_Csharp
         /// <summary>
         /// Construct a matrix using an 1D int array, usually matrix.Shape
         /// </summary>
-        /// <param name="shape">1D int array</param>
+        /// <param name="shape">1D int array containing [row,col]</param>
         public Matrix(int[] shape)
         {
             if(shape.Length!=2){throw new Exception("input must be a 1D int[] containing the shape");}
@@ -317,6 +323,12 @@ namespace image_recognition_Csharp
             data=new Matrix(row,col).data;
         }
         
+        /// <summary>
+        /// Create a matrix with random numbers
+        /// </summary>
+        /// <param name="row"></param>
+        /// <param name="col"></param>
+        /// <returns></returns>
         public static Matrix Random_Matrix(int row, int col)
         {
             Random rng = new Random();
@@ -357,7 +369,7 @@ namespace image_recognition_Csharp
             }
             else// if input is invalid
             {
-                Console.WriteLine("left column and right row is not the same");
+                Console.WriteLine("left [column] and right [row] is not the same");
                 Console.WriteLine($"{this.Column} != {right_matrix.Row}");
                 throw new ArgumentException();
                 
@@ -407,6 +419,11 @@ namespace image_recognition_Csharp
             return result;
         }
         
+        /// <summary>
+        /// element wise, turn all number into absolute number. Size remain unchanged
+        /// </summary>
+        /// <param name="matrix"></param>
+        /// <returns></returns>
         public static Matrix Abs(Matrix matrix)
         {
             Matrix result = new Matrix(matrix.Shape);
@@ -419,6 +436,7 @@ namespace image_recognition_Csharp
             }
             return result;
         }
+
 
         public static double Mean(Matrix matrix)
         {
@@ -435,6 +453,7 @@ namespace image_recognition_Csharp
             mean=sum/n;
             return mean;
         }
+        
         /// <summary>
         /// element-wise addition
         /// </summary>
@@ -496,6 +515,7 @@ namespace image_recognition_Csharp
             Matrix result = left+right_matrix;
             return result;
         }
+
         /// <summary>
         /// element-wise addition, make a matrix full of the number then add the new matrix with the corresopnding matrix
         /// </summary>
@@ -550,6 +570,13 @@ namespace image_recognition_Csharp
         public static Matrix operator -(Matrix left, Matrix right) 
         {
             Matrix result;
+            // boradcasting for 1 x 1 matrix
+            // e.g. 5 x 5 matrix - 1 x 1 matrix
+            // trun the 1 x 1 to 5 x 5 first
+            if(right.Size=="1 X 1")
+            {
+                right = new Matrix(left.Shape).Set_num(right[0]);
+            }
             result = left.Substract(right);
 
             return result;
@@ -567,6 +594,7 @@ namespace image_recognition_Csharp
             Matrix result = left-right_matrix;
             return result;
         }
+        
         /// <summary>
         /// element-wise substraction, make a matrix full of the number then substract the new matrix with the corresopnding matrix
         /// </summary>
@@ -600,6 +628,11 @@ namespace image_recognition_Csharp
             return Multiplied_matrix;
         }
 
+        /// <summary>
+        /// element-wise multiplication
+        /// </summary>
+        /// <param name="right"></param>
+        /// <returns>Shape will remain unchanged</returns>
         public Matrix Multiply(Matrix right)
         {
 
@@ -630,6 +663,7 @@ namespace image_recognition_Csharp
             result = left.Multiply(right);
             return result;
         }
+       
         /// <summary>
         /// element-wise multiplication
         /// </summary>
@@ -663,6 +697,7 @@ namespace image_recognition_Csharp
             }
             return result;
         }
+       
         /// <summary>
         /// element wise division
         /// </summary>
@@ -683,6 +718,7 @@ namespace image_recognition_Csharp
             }
             return result;
         }
+        
         /// <summary>
         /// element-wise Exp
         /// </summary>
@@ -723,7 +759,6 @@ namespace image_recognition_Csharp
             
         }
 
-
         /// <summary>
         /// Element-wise compare each element of the two matries
         /// </summary>
@@ -749,6 +784,7 @@ namespace image_recognition_Csharp
             }
             return true;
         }
+        
         /// <summary>
         /// Element-wise compare each element of the two matries
         /// </summary>
@@ -765,6 +801,7 @@ namespace image_recognition_Csharp
                 return false;
             }
         }
+        
         /// <summary>
         /// set all elements to a specific nummber
         /// </summary>
