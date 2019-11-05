@@ -402,7 +402,7 @@ namespace image_recognition_Csharp
             /// This function optimizes w and b by running a gradient descent algorithm,[0]params-{dict} containing w and b. [1]grads-{matrix}. [2]costs-{list}
             /// </summary>
             /// <param name="w">weights, 1 column Matrix</param>
-            /// <param name="b">bias, a scalar, shape(1, number of examples) same as W.T*X</param>
+            /// <param name="b">bias, a scalar</param>
             /// <param name="X">data, shape(Nx, number of examples)</param>
             /// <param name="Y">"label" vector, shape(1, number of examples)</param>
             /// <param name="num_iterations">number of iterations of the optimization loop</param>
@@ -520,7 +520,7 @@ namespace image_recognition_Csharp
                 //  initialize parameters with zeros
                 Matrix w = new Matrix(X_train.Shape[0],1);
                 // the shape of b is the same as A, the column num is #examples
-                Matrix b = new Matrix(1,X_train.Shape[1]); 
+                Matrix b = new Matrix(1,1); 
 
                 // Gradient descent
                 object[] gradient_results = ML.LogisticRegression.Optimize(w,b,X_train,Y_train,num_iterations,learning_rate,print_cost);
