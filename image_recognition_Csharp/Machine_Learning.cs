@@ -333,18 +333,9 @@ namespace image_recognition_Csharp
             /// Sigmoid function, take Z, return number between 0 - 1
             /// </summary>
             /// <param name="Z">W.T * X + b</param>
-            /// <returns>A, size is depended on the Z</returns>
+            /// <returns>A, size is the same as input</returns>
             public static Matrix Sigmoid(Matrix Z)
             {
-                // Matrix A = new Matrix(Z.Shape);
-                // for(int row=0;row<Z.Row;row++)
-                // {
-                //     for(int col=0;col<Z.Column;col++)
-                //     {
-                //         A[row,col] = 1/(  1+Math.Pow(Math.E,-Z[row,col])  );
-                //     }
-                // }
-
                 Matrix A = new Matrix(Z.Shape);
                 A = 1/(1+Matrix.Exp(-1*Z));
                 return A;
@@ -354,7 +345,7 @@ namespace image_recognition_Csharp
             /// Implement the cost function and its gradient for the propagation.[0]grads-{dict}-"dw","db". [1]cost-{matrix}
             /// </summary>
             /// <param name="w">weights, shape (Nx,1)</param>
-            /// <param name="b">bias, a scalar, shape(1, #examples)</param>
+            /// <param name="b">bias, a scalar, shape(1, 1)</param>
             /// <param name="X">data, shape(Nx, number of examples)</param>
             /// <param name="Y">"label" vector, shape (1, number of examples)</param>
             /// <returns>1D array,[0]grads-{dict}-"dw","db". [1]cost-{matrix}</returns>
@@ -372,18 +363,18 @@ namespace image_recognition_Csharp
                 dw -- gradient of the loss with respect to w, thus same shape as w
                 db -- gradient of the loss with respect to b, thus same shape as b
                 */
-                // if b is just a number
-                // b = new Matrix(w.T.Row,X.Column).Set_num(b[0,0]);
+                
 
                 double m = X.Shape[1]; // # examples
                 // FORWARD PROPAGATION (FROM X TO COST)
-                Matrix A = Sigmoid(w.T*X+b);    // compute activation
-                Matrix cost = -1/m * Matrix.Sum(Y.Multiply(Matrix.Log(A)) + (1 - Y).Multiply( Matrix.Log(1 - A)) ); //compute cost
+                Matrix Z = w.T*X+b;
+                Matrix A = Sigmoid(Z);    // compute activation
+                Matrix cost = (-1/m) * Matrix.Sum(Y.Multiply(Matrix.Log(A)) + (1 - Y).Multiply( Matrix.Log(1 - A)) ); //compute cost
 
                 // BACKWARD PROPAGATION (TO FIND GRAD)
-                Matrix dz = (1/m)*(A - Y);
-                Matrix dw = X * dz.T;
-                Matrix db = Matrix.Sum(dz);
+                Matrix dz = (A - Y);
+                Matrix dw = (1/m) * (X * dz.T);
+                Matrix db = (1/m) * (Matrix.Sum(dz));
 
                 Debug.Assert(dw.Size == w.Size);
                 
@@ -518,8 +509,10 @@ namespace image_recognition_Csharp
                 bool print_cost = false)
             {
                 //  initialize parameters with zeros
+                // w shape [nx,1]
                 Matrix w = new Matrix(X_train.Shape[0],1);
-                // the shape of b is the same as A, the column num is #examples
+
+                // b is a scalar, a number only
                 Matrix b = new Matrix(1,1); 
 
                 // Gradient descent
