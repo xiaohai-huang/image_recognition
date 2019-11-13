@@ -458,7 +458,7 @@ namespace image_recognition_Csharp
             }
 
             /// <summary>
-            /// Predict whether the label is 0 or 1 using learned logistic regression parameters (w, b). (1 row vector) containing all predictions
+            /// Predict whether the label is 0 or 1 using learned logistic regression parameters (w, b). return(1,m) containing all predictions
             /// </summary>
             /// <param name="w">weights, 1 column Matrix</param>
             /// <param name="b">bias, a scalar</param>
@@ -468,9 +468,6 @@ namespace image_recognition_Csharp
             {
                 
                 // Compute vector "A" predicting the probabilities of a cat being present in the picture
-                // if b is just a number
-                // b = new Matrix(w.T.Row,X.Column).Set_num(b[0,0]);
-                
                 Matrix A = Sigmoid(w.T*X+b);
                 
                 // Convert the entries of a into 0 (if activation <= 0.5) or 1 (if activation > 0.5),
@@ -544,6 +541,156 @@ namespace image_recognition_Csharp
                 d.Add("num_iterations",num_iterations);
                 
                 return d;
+            }
+        }
+    
+        public static class NN
+        {
+            // Defining the neural network structure
+            /// <summary>
+            ///  Defining the neural network structure.
+            ///  Use shapes of X and Y to find n_x and n_y. 
+            ///  Also, hard code the hidden layer size to be 4.
+            /// </summary>
+            /// <param name="X">input dataset of shape (input size, number of examples)</param>
+            /// <param name="Y">labels of shape (output size, number of examples)</param>
+            public static int[] Layer_sizes(Matrix X, Matrix Y)
+            {
+                /*
+                    Returns:
+                    n_x -- the size of the input layer
+                    n_h -- the size of the hidden layer
+                    n_y -- the size of the output layer
+                */
+                int n_x = X.Shape[0]; //the size of the input layer
+                int n_h = 4;
+                int n_y = Y.Shape[0]; //the size of the output layer
+                
+                int[] result = {n_x,n_h,n_y};
+                
+                return result;
+            }
+
+            /// <summary>
+            /// Initialize the model's parameters
+            /// </summary>
+            /// <param name="n_x">size of the input layer</param>
+            /// <param name="n_h">size of the hidden layer</param>
+            /// <param name="n_y">size of the output layer</param>
+            /// <returns>dictionary containing parameters:</returns>
+            public static Dictionary<string,Matrix> Initialize_parameters(int n_x,int n_h, int n_y)
+            {
+                /*
+                    Dictionary containing these parameters
+                    W1 -- weight matrix of shape (n_h, n_x)
+                    b1 -- bias vector of shape (n_h, 1)
+                    W2 -- weight matrix of shape (n_y, n_h)
+                    b2 -- bias vector of shape (n_y, 1)
+                */
+                Matrix W1 = Matrix.Random_Matrix(n_h,n_x)*0.01;
+                Matrix b1 = new Matrix(n_h,1).Set_num(0);
+                Matrix W2 = Matrix.Random_Matrix(n_y,n_h)*0.01;
+                Matrix b2 = new Matrix(n_y,1).Set_num(0);
+
+                Dictionary<string,Matrix> parameters = new Dictionary<string, Matrix>();
+                parameters.Add("W1",W1);
+                parameters.Add("b1",b1);
+                parameters.Add("W2",W2);
+                parameters.Add("b2",b2);
+
+                return parameters;
+            }
+
+            /// <summary>
+            /// Compute the output
+            /// </summary>
+            /// <param name="X">input data of size (n_x,m)</param>
+            /// <param name="parameters">output of initialization function, [W1,b1,W2,b2]</param>
+            /// <returns>A2(Matrix) -- The sigmoid output of the second activation cache -- a dictionary containing "Z1", "A1", "Z2" and "A2"</returns>
+            public static object[] Forward_propagation(Matrix X, Dictionary<string,Matrix> parameters)
+            {
+                // Retrieve each parameter from the dictionary "parameters"
+                Matrix W1 = parameters["W1"];
+                Matrix b1 = parameters["b1"];
+                Matrix W2 = parameters["W2"];
+                Matrix b2 = parameters["b2"];
+
+                // Implement Forward Propagation to calculate A2 (probabilities)
+                Matrix Z1 = W1*X+b1;
+                Matrix A1 = Matrix.tanh(Z1); // tanh
+
+                Matrix Z2 = W2*A1+b2;
+                Matrix A2 = LogisticRegression.Sigmoid(Z2);
+
+                Dictionary<string, Matrix> cache = new Dictionary<string, Matrix>();
+                cache.Add("Z1",Z1);
+                cache.Add("A1",A1);
+                cache.Add("Z2",Z2);
+                cache.Add("A2",A2);
+
+                object[] results = {A2,cache};
+                return results;
+            }
+            
+            /// <summary>
+            /// compute the value of the cost J
+            /// </summary>
+            /// <param name="A2">The sigmoid output of the second activation, of shape (1, number of examples)</param>
+            /// <param name="Y">"true" labels vector of shape (1, number of examples)</param>
+            /// <param name="parameters">dictionary containing your parameters W1, b1, W2 and b2</param>
+            /// <returns></returns>
+            public static double Compute_cost(Matrix A2, Matrix Y, Dictionary<string,Matrix> parameters)
+            {
+                int m = Y.Shape[0]; // #examples
+
+                // Retrieve W1 and W2 from parameters
+                Matrix W1 = parameters["W1"];
+                Matrix W2 = parameters["W2"];
+
+                // Compute the cost
+                Matrix logprobs = Matrix.Log(A2).Multiply(Y) + (1-Y).Multiply(Matrix.Log(1-Y));
+                double cost = ((1/m) * Matrix.Sum(logprobs))[0];
+
+                return cost;
+            }
+            
+            /// <summary>
+            /// Backward propagation to compute dW1, dW2, db1, db2
+            /// </summary>
+            /// <param name="parameters">W1,W2,b1,b2</param>
+            /// <param name="cache">Z1,A1,Z2,A2</param>
+            /// <param name="X">input data (n_x,m)</param>
+            /// <param name="Y">true labels vector (1, m)</param>
+            /// <returns>dictionary containing gradients with respect to different parameters</returns>
+            public static Dictionary<string,Matrix> Backward_propagation(Dictionary<string,Matrix> parameters,Dictionary<string,Matrix> cache,Matrix X, Matrix Y)
+            {
+                int m = X.Shape[1]; // #examples
+
+                // First, retrieve W1 and W2 from the dictionary "parameters".
+                Matrix W1 = parameters["W1"];
+                Matrix W2 = parameters["W2"];
+
+                // Retrieve also A1 and A2 from dictionary "cache".
+                Matrix A1 = cache["A1"];
+                Matrix A2 = cache["A2"];
+
+                // Backward propagation: calculate dW1, db1, dW2, db2.
+                Matrix dz2 = A2 - Y;
+                Matrix dW2 = (1/m) * dz2*A1.T;
+                Matrix db2 = (1/m) * Matrix.Sum(dz2); // implement axis =1. aim [n_2,1]
+                
+                Matrix dz1 = (W2.T*dz2).Multiply(1 - Matrix.Power(A1,2));
+                Matrix dW1 = (1/m) * dz1*X.T;
+                Matrix db1 = (1/m) * Matrix.Sum(dz1);
+
+                Dictionary<string,Matrix> grads = new Dictionary<string, Matrix>();
+                grads.Add("dW1",dW1);
+                grads.Add("db1",db1);
+                grads.Add("dW2",dW2);
+                grads.Add("db2",db2);
+
+                return grads;
+
             }
         }
     }

@@ -437,6 +437,25 @@ namespace image_recognition_Csharp
             return result;
         }
 
+        /// <summary>
+        /// element-wise power
+        /// </summary>
+        /// <param name="matrix"></param>
+        /// <param name="num">the specific num to be raised to</param>
+        /// <returns></returns>
+        public static Matrix Power(Matrix matrix, double num)
+        {
+            Matrix result = new Matrix(matrix.Shape);
+            for(int row=0;row<result.Row;row++)
+            {
+                for(int col=0;col<result.Column;col++)
+                {
+                    result[row,col] = Math.Pow(matrix[row,col],num);
+                }
+            }
+
+            return result;
+        }
 
         public static double Mean(Matrix matrix)
         {
@@ -719,6 +738,24 @@ namespace image_recognition_Csharp
             return result;
         }
         
+        /// <summary>
+        /// element-wise division
+        /// </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
+        public static Matrix operator/(Matrix left, Matrix right)
+        {
+            Matrix result = new Matrix(right.Shape);
+            for(int row=0;row<right.Row;row++)
+            {
+                for(int col=0;col<right.Column;col++)
+                {
+                    result[row,col] = left[row,col]/right[row,col];
+                }
+            }
+            return result;
+        }
         /// <summary>
         /// element-wise Exp
         /// </summary>
@@ -1324,6 +1361,24 @@ namespace image_recognition_Csharp
             return result;
         }
         
+        /// <summary>
+        /// element-wise tanh, (e^z - e^-z)/(e^z + e^-z)
+        /// </summary>
+        /// <param name="Z"></param>
+        /// <returns></returns>
+        public static Matrix tanh(Matrix Z)
+        {
+            Matrix result = new Matrix(Z.Shape);
+            // for (int row=0;row<result.Row;row++)
+            // {
+            //     for(int col=0;col<result.Column;col++)
+            //     {
+            //         result[row,col] = 
+            //     }
+            // }
+            result = (Matrix.Exp(Z) - Matrix.Exp(-1*Z) )/(Matrix.Exp(Z) + Matrix.Exp(-1*Z));
+            return result;
+        }
         
 
 
