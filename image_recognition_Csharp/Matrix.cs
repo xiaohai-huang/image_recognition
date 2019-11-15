@@ -362,7 +362,13 @@ namespace image_recognition_Csharp
                 {
                     for(int col=0; col < right_matrix.Column; col++)
                     {
-                        output_matrix[row, col] = Get_one_cell(row, col,right_matrix);
+                        double cell=0;
+                        for(int l_col_index=0;l_col_index<this.Column;l_col_index++ )
+                        {
+                            cell=cell+ this[row,l_col_index]*right_matrix[l_col_index,col];
+                        }
+                        output_matrix[row, col] = cell;
+                        //Get_one_cell(row, col,right_matrix)
                     }
                 }
                 return output_matrix;
@@ -372,7 +378,6 @@ namespace image_recognition_Csharp
                 Console.WriteLine("left [column] and right [row] is not the same");
                 Console.WriteLine($"{this.Column} != {right_matrix.Row}");
                 throw new ArgumentException();
-                
             }
             
         }
@@ -934,7 +939,7 @@ namespace image_recognition_Csharp
             {
                 for(int col = 0; col < this.Column; col++)
                 {
-                    Console.Write(Math.Round(this[row, col],decimal_num)+"  ");
+                    Console.Write(Math.Round(this[row, col],decimal_num)+"\t");
                 }
                 Console.WriteLine();
             }
