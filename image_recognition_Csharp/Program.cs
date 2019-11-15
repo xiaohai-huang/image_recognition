@@ -90,7 +90,7 @@ namespace image_recognition_Csharp
 
         }
 
-        public static void Main()
+        public static void h()
         {
             // get X, Y data
             // Y has to be a 1-row matrix
@@ -122,6 +122,11 @@ namespace image_recognition_Csharp
             Matrix W = (Matrix)results["w"];
             W.SaveMatrix("test_trainMethod.txt");
             test();
+        }
+
+        public static void Main()
+        {
+            Console.WriteLine("hello");
         }
     }
 }
