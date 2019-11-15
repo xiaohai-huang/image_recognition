@@ -126,7 +126,7 @@ namespace image_recognition_Csharp
 
         public static void Main()
         {
-            Console.WriteLine("hello");
+            Console.WriteLine("hello git");
         }
     }
 }
