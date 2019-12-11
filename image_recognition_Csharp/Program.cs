@@ -126,9 +126,7 @@ namespace image_recognition_Csharp
 
         public static void Main()
         {
-            Matrix myMat = new Matrix(10, 10);
-            myMat.Display();
-            Console.WriteLine("git in Visual studio");
+            
         }
     }
 }
