@@ -1,21 +1,25 @@
 {
   "format": 1,
   "restore": {
-    "D:\\image_recognition\\image_recognition_Csharp\\image_recognition_Csharp.csproj": {}
+    "D:\\C# projects\\Image_recognition\\image_recognition_Csharp\\image_recognition_Csharp.csproj": {}
   },
   "projects": {
-    "D:\\image_recognition\\image_recognition_Csharp\\image_recognition_Csharp.csproj": {
+    "D:\\C# projects\\Image_recognition\\image_recognition_Csharp\\image_recognition_Csharp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\image_recognition\\image_recognition_Csharp\\image_recognition_Csharp.csproj",
+        "projectUniqueName": "D:\\C# projects\\Image_recognition\\image_recognition_Csharp\\image_recognition_Csharp.csproj",
         "projectName": "image_recognition_Csharp",
-        "projectPath": "D:\\image_recognition\\image_recognition_Csharp\\image_recognition_Csharp.csproj",
-        "packagesPath": "C:\\Users\\86791\\.nuget\\packages\\",
-        "outputPath": "D:\\image_recognition\\image_recognition_Csharp\\obj\\",
+        "projectPath": "D:\\C# projects\\Image_recognition\\image_recognition_Csharp\\image_recognition_Csharp.csproj",
+        "packagesPath": "C:\\Users\\xiaohai\\.nuget\\packages\\",
+        "outputPath": "D:\\C# projects\\Image_recognition\\image_recognition_Csharp\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Microsoft\\Xamarin\\NuGet\\"
+        ],
         "configFilePaths": [
-          "C:\\Users\\86791\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "C:\\Users\\xiaohai\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
         ],
         "originalTargetFrameworks": [
           "netcoreapp3.0"
@@ -53,12 +57,30 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[3.0.1, 3.0.1]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Host.win-x64",
+              "version": "[3.0.1, 3.0.1]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[3.0.0, 3.0.0]"
+            },
+            {
+              "name": "Microsoft.WindowsDesktop.App.Ref",
+              "version": "[3.0.0, 3.0.0]"
+            }
+          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.0.100\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.100\\RuntimeIdentifierGraph.json"
         }
       }
     }
